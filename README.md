@@ -1,6 +1,5 @@
-vcfgo is a golang library to read, write and manipulate files in the variant call format.
-
 [![GoDoc](https://godoc.org/github.com/brentp/vcfgo?status.svg)](https://godoc.org/github.com/brentp/vcfgo)
+vcfgo is a golang library to read, write and manipulate files in the variant call format.
 
 # vcfgo
 --
@@ -32,6 +31,15 @@ for {
 fmt.Fprintln(os.Stderr, rdr.Error())
 ```
 
+## Status
+
+`vcfgo` is well-tested, but still in development. It tries to tolerate, but report
+errors. So that after every `rdr.Read()` call, the caller can check `rdr.Error()`
+and get feedback on the errors without stopping execution unless it is explicitly
+requested to do so.
+
+Info and sample fields are pre-parsed and stored as `map[string]interface{}` so
+callers will have to cast to the appropriate type upon retrieval.
 
 #### type Header
 
