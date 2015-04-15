@@ -34,7 +34,7 @@ fmt.Fprintln(os.Stderr, rdr.Error())
 ## Status
 
 `vcfgo` is well-tested, but still in development. It tries to tolerate, but report
-errors. So that after every `rdr.Read()` call, the caller can check `rdr.Error()`
+errors; after every `rdr.Read()` call, the caller can check `rdr.Error()`
 and get feedback on the errors without stopping execution unless it is explicitly
 requested to do so.
 
