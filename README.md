@@ -1,6 +1,3 @@
-vcfgo
-=====
-
 vcfgo is a golang library to read, write and manipulate files in the variant call format.
 
 # vcfgo
