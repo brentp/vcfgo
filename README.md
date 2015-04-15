@@ -21,7 +21,7 @@ for {
 	if variant == nil {
 		break
 	}
-	fmt.Printf("%s\t%d\t%s\t%s\n", variant.Chrom, variant.Pos, variant.Ref, variant.Alt)
+	fmt.Printf("%s\t%d\t%s\t%s\n", variant.Chromosome, variant.Pos, variant.Ref, variant.Alt)
 	fmt.Printf("%s", variant.Info["DP"].(int) > 10)
 	sample := variant.Samples[0]
 	// we can get the PL field as a list (-1 is default in case of missing value)
@@ -243,18 +243,18 @@ IsEmpty returns true if there no errors stored.
 
 ```go
 type Variant struct {
-	Chrom      string
-	Pos        uint64
-	Id         string
-	Ref        string
-	Alt        []string
-	Quality    float32
-	Filter     string
-	Info       InfoMap
-	Format     []string
-	Samples    []*SampleGenotype
-	Header     *Header
-	LineNumber int64
+	Chromosome      string
+	Pos        		uint64
+	Id         		string
+	Ref        		string
+	Alt        		[]string
+	Quality    		float32
+	Filter     		string
+	Info       		InfoMap
+	Format     		[]string
+	Samples    		[]*SampleGenotype
+	Header     		*Header
+	LineNumber 		int64
 }
 ```
 

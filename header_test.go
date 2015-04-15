@@ -94,7 +94,7 @@ func (s *HeaderSuite) TestSamples(c *C) {
 
 	var lastV *Variant
 	for ; v != nil; v = r.Read() {
-		c.Assert(v.Chrom, Equals, "20")
+		c.Assert(v.Chromosome, Equals, "20")
 		lastV = v
 	}
 	c.Assert(lastV.Pos, Equals, uint64(1234567))

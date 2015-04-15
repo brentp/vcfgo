@@ -12,7 +12,7 @@ type InfoMap map[string]interface{}
 
 // Variant holds the information about a single site. It is analagous to a row in a VCF file.
 type Variant struct {
-	Chrom      string
+	Chromosome string
 	Pos        uint64
 	Id         string
 	Ref        string
@@ -24,6 +24,36 @@ type Variant struct {
 	Samples    []*SampleGenotype
 	Header     *Header
 	LineNumber int64
+}
+
+// Is returns true if variants are the same by position and share at least 1 alternate allele.
+func (v *Variant) Is(o *Variant) bool {
+	if v.Pos != o.Pos || v.Chromosome != o.Chromosome || v.Ref != o.Ref {
+		return false
+	}
+	for _, av := range v.Alt {
+		for _, ov := range o.Alt {
+			if av == ov {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// Chrom returns the chromosome name.
+func (v *Variant) Chrom() string {
+	return v.Chromosome
+}
+
+// Start returns the 0-based start
+func (v *Variant) Start() uint64 {
+	return v.Pos - 1
+}
+
+// End returns the 0-based start + the length of the reference allele.
+func (v *Variant) End() uint64 {
+	return v.Pos - 1 + uint64(len(v.Ref))
 }
 
 func fmtFloat(v float32) string {
@@ -129,7 +159,7 @@ func NewSampleGenotype() *SampleGenotype {
 // String gives a string representation of a variant
 func (v *Variant) String() string {
 	//#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	1_dad	1_mom	1_kid	2_dad	2_mom	2_kid	3_dad	3_mom	3_kid
-	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%.1f\t%s\t%s\t", v.Chrom, v.Pos, v.Id, v.Ref, strings.Join(v.Alt, ","), v.Quality, v.Filter, v.Info)
+	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%.1f\t%s\t%s\t", v.Chromosome, v.Pos, v.Id, v.Ref, strings.Join(v.Alt, ","), v.Quality, v.Filter, v.Info)
 	if len(v.Samples) > 0 {
 		samps := make([]string, len(v.Samples))
 		for i, s := range v.Samples {

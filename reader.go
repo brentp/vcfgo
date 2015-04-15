@@ -11,7 +11,7 @@
 //  	if variant == nil {
 //  		break
 //  	}
-//  	fmt.Printf("%s\t%d\t%s\t%s\n", variant.Chrom, variant.Pos, variant.Ref, variant.Alt)
+//  	fmt.Printf("%s\t%d\t%s\t%s\n", variant.Chromosome, variant.Pos, variant.Ref, variant.Alt)
 //  	fmt.Printf("%s", variant.Info["DP"].(int) > 10)
 //  	sample := variant.Samples[0]
 //  	// we can get the PL field as a list (-1 is default in case of missing value)
@@ -138,7 +138,7 @@ func (vr *Reader) Read() *Variant {
 	qual, err := strconv.ParseFloat(fields[5], 32)
 	vr.verr.Add(err, vr.LineNumber)
 
-	v := &Variant{Chrom: fields[0], Pos: pos, Id: fields[2], Ref: fields[3], Alt: strings.Split(fields[4], ","), Quality: float32(qual),
+	v := &Variant{Chromosome: fields[0], Pos: pos, Id: fields[2], Ref: fields[3], Alt: strings.Split(fields[4], ","), Quality: float32(qual),
 		Filter: fields[6], Header: vr.Header}
 	if len(fields) > 8 {
 		v.Format = strings.Split(fields[8], ":")
