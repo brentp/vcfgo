@@ -8,7 +8,7 @@ import (
 
 func Example() {
 	f, _ := os.Open("examples/test.auto_dom.no_parents.vcf")
-	rdr, err := vcfgo.NewReader(f)
+	rdr, err := vcfgo.NewReader(f, false)
 	if err != nil {
 		panic(err)
 	}

@@ -18,7 +18,7 @@ func (s *VariantSuite) SetUpTest(c *C) {
 }
 
 func (s *VariantSuite) TestVariantGetInt(c *C) {
-	rdr, err := NewReader(s.reader)
+	rdr, err := NewReader(s.reader, true)
 	c.Assert(err, IsNil)
 	v := rdr.Read()
 
@@ -49,7 +49,7 @@ func (s *VariantSuite) TestVariantGetInt(c *C) {
 }
 
 func (s *VariantSuite) TestInfoField(c *C) {
-	rdr, err := NewReader(s.reader)
+	rdr, err := NewReader(s.reader, false)
 	c.Assert(err, IsNil)
 	v := rdr.Read()
 	vstr := fmt.Sprintf("%s", v.Info)
@@ -57,7 +57,7 @@ func (s *VariantSuite) TestInfoField(c *C) {
 }
 
 func (s *VariantSuite) TestInfoMap(c *C) {
-	rdr, err := NewReader(s.reader)
+	rdr, err := NewReader(s.reader, false)
 	c.Assert(err, IsNil)
 	v := rdr.Read()
 

@@ -59,7 +59,7 @@ func (s *HeaderSuite) SetUpTest(c *C) {
 }
 
 func (s *HeaderSuite) TestReaderHeaderParseSample(c *C) {
-	r, err := NewReader(s.reader)
+	r, err := NewReader(s.reader, false)
 	c.Assert(err, IsNil)
 	v := r.Read()
 	c.Assert(r.Error(), IsNil)
@@ -69,7 +69,7 @@ func (s *HeaderSuite) TestReaderHeaderParseSample(c *C) {
 }
 
 func (s *HeaderSuite) TestSamples(c *C) {
-	r, err := NewReader(s.reader)
+	r, err := NewReader(s.reader, false)
 	c.Assert(err, IsNil)
 
 	v := r.Read()

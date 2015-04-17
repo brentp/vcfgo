@@ -33,14 +33,17 @@ import (
 // Reader holds information about the current line number (for errors) and
 // The VCF header that indicates the structure of records.
 type Reader struct {
-	scanner    *bufio.Scanner
-	Header     *Header
-	verr       *VCFError
-	LineNumber int64
+	scanner     *bufio.Scanner
+	Header      *Header
+	verr        *VCFError
+	LineNumber  int64
+	lazySamples bool
 }
 
 // NewReader returns a Reader.
-func NewReader(r io.Reader) (*Reader, error) {
+// If lazySamples is true, then the user will have to call Reader.ParseSamples()
+// in order to access simple info.
+func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
@@ -110,7 +113,7 @@ func NewReader(r io.Reader) (*Reader, error) {
 		}
 	}
 	verr.Add(scanner.Err(), LineNumber)
-	reader := &Reader{scanner, h, verr, LineNumber}
+	reader := &Reader{scanner, h, verr, LineNumber, lazySamples}
 	return reader, reader.Error()
 }
 
@@ -142,23 +145,35 @@ func (vr *Reader) Read() *Variant {
 		Filter: fields[6], Header: vr.Header}
 	if len(fields) > 8 {
 		v.Format = strings.Split(fields[8], ":")
+		if len(fields) > 9 {
+			v.sampleStrings = fields[9:]
+			if !vr.lazySamples {
+				vr.ParseSamples(v)
+			}
+
+		}
 	}
-	v.Samples = make([]*SampleGenotype, len(vr.Header.SampleNames))
 	v.LineNumber = vr.LineNumber
 
 	v.Info, err = vr.Header.parseInfo(fields[7])
 	vr.verr.Add(err, vr.LineNumber)
-
-	if len(fields) > 8 {
-		for i, sample := range fields[9:] {
-			geno, errors := vr.Header.parseSample(v.Format, sample)
-			for _, e := range errors {
-				vr.verr.Add(e, vr.LineNumber)
-			}
-			v.Samples[i] = geno
-		}
-	}
 	return v
+}
+
+// Force parsing of the sample fields.
+func (vr *Reader) ParseSamples(v *Variant) {
+	if v.Format == nil || v.sampleStrings == nil {
+		return
+	}
+	v.Samples = make([]*SampleGenotype, len(vr.Header.SampleNames))
+	for i, sample := range v.sampleStrings {
+		geno, errors := vr.Header.parseSample(v.Format, sample)
+		for _, e := range errors {
+			vr.verr.Add(e, vr.LineNumber)
+		}
+		v.Samples[i] = geno
+	}
+	v.sampleStrings = nil
 }
 
 // Error() aggregates the multiple errors that can occur into a single object.

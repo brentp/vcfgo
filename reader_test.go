@@ -18,14 +18,14 @@ func (s *ReaderSuite) SetUpTest(c *C) {
 }
 
 func (s *ReaderSuite) TestReaderHeaderSamples(c *C) {
-	v, err := NewReader(s.reader)
+	v, err := NewReader(s.reader, false)
 	c.Assert(err, IsNil)
 	c.Assert(v.Header.SampleNames, DeepEquals, []string{"NA00001", "NA00002", "NA00003"})
 
 }
 
 func (s *ReaderSuite) TestReaderHeaderInfos(c *C) {
-	v, err := NewReader(s.reader)
+	v, err := NewReader(s.reader, false)
 	c.Assert(err, IsNil)
 	c.Assert(v.Header.Infos["NS"], DeepEquals, &Info{Id: "NS", Number: "1", Type: "Integer", Description: "Number of Samples With Data"})
 	c.Assert(v.Header.Filters["q10"], Equals, "Quality below 10")
@@ -33,7 +33,7 @@ func (s *ReaderSuite) TestReaderHeaderInfos(c *C) {
 }
 
 func (s *ReaderSuite) TestReaderHeaderExtras(c *C) {
-	v, err := NewReader(s.reader)
+	v, err := NewReader(s.reader, true)
 	c.Assert(err, IsNil)
 	c.Assert(len(v.Header.Extras), Equals, 4)
 	c.Assert(v.Header.Extras["phasing"], Equals, "partial")
@@ -41,7 +41,7 @@ func (s *ReaderSuite) TestReaderHeaderExtras(c *C) {
 }
 
 func (s *ReaderSuite) TestReaderRead(c *C) {
-	rdr, err := NewReader(s.reader)
+	rdr, err := NewReader(s.reader, false)
 	c.Assert(err, IsNil)
 
 	rec := rdr.Read()

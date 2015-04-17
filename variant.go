@@ -22,8 +22,10 @@ type Variant struct {
 	Info       InfoMap
 	Format     []string
 	Samples    []*SampleGenotype
-	Header     *Header
-	LineNumber int64
+	// if lazy parsing, then just save the sample strings here.
+	sampleStrings []string
+	Header        *Header
+	LineNumber    int64
 }
 
 // Is returns true if variants are the same by position and share at least 1 alternate allele.
@@ -47,13 +49,13 @@ func (v *Variant) Chrom() string {
 }
 
 // Start returns the 0-based start
-func (v *Variant) Start() uint64 {
-	return v.Pos - 1
+func (v *Variant) Start() uint32 {
+	return uint32(v.Pos - 1)
 }
 
 // End returns the 0-based start + the length of the reference allele.
-func (v *Variant) End() uint64 {
-	return v.Pos - 1 + uint64(len(v.Ref))
+func (v *Variant) End() uint32 {
+	return uint32(v.Pos) - uint32(1) + uint32(len(v.Ref))
 }
 
 func fmtFloat(v float32) string {

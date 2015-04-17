@@ -38,6 +38,15 @@ func NewVCFError() *VCFError {
 func (e *VCFError) Add(err error, line int64) {
 	if e != nil {
 		if ierr := e.Error(); ierr != "" {
+			if len(e.Msgs) == 5000 {
+				// only keep at most 5K errors.
+				m := make([]string, 0, 5000)
+				l := make([]int64, 0, 5000)
+				m = append(m, e.Msgs[3000:]...)
+				l = append(l, e.Lines[3000:]...)
+				e.Msgs = m
+				e.Lines = l
+			}
 			e.Msgs = append(e.Msgs, ierr)
 			e.Lines = append(e.Lines, line)
 		}
