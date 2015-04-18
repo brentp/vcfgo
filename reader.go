@@ -162,7 +162,7 @@ func (vr *Reader) Read() *Variant {
 
 // Force parsing of the sample fields.
 func (vr *Reader) ParseSamples(v *Variant) {
-	if v.Format == nil || v.sampleStrings == nil {
+	if v.Format == nil || v.sampleStrings == nil || v.Samples != nil {
 		return
 	}
 	v.Samples = make([]*SampleGenotype, len(vr.Header.SampleNames))

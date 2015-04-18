@@ -12,7 +12,7 @@ reading, filtering modifying VCF's even if they are not to spec. Example:
 
 ```go
 f, _ := os.Open("examples/test.auto_dom.no_parents.vcf")
-rdr, err := vcfgo.NewReader(f)
+rdr, err := vcfgo.NewReader(f, false)
 if err != nil {
 	panic(err)
 }
@@ -117,7 +117,7 @@ header that indicates the structure of records.
 #### func  NewReader
 
 ```go
-func NewReader(r io.Reader) (*Reader, error)
+func NewReader(r io.Reader, lazySamples bool) (*Reader, error)
 ```
 NewReader returns a Reader.
 
