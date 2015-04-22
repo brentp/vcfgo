@@ -17,7 +17,7 @@ func NewWriter(w io.Writer, h *Header) (*Writer, error) {
 	fmt.Fprintf(w, "##fileformat=VCFv%s\n", h.FileFormat)
 
 	for k, v := range h.Extras {
-		fmt.Fprintf(w, "## %s=%s\n", k, v)
+		fmt.Fprintf(w, "##%s=%s\n", k, v)
 	}
 
 	for _, imap := range h.Contigs {
@@ -34,7 +34,7 @@ func NewWriter(w io.Writer, h *Header) (*Writer, error) {
 	}
 
 	for k, v := range h.Filters {
-		fmt.Fprintf(w, "##FILTER=<ID=,Description=\"%s\">\n", k, v)
+		fmt.Fprintf(w, "##FILTER=<ID=%s,Description=\"%s\">\n", k, v)
 	}
 
 	for _, i := range h.Infos {
