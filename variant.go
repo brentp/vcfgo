@@ -10,6 +10,11 @@ import (
 // InfoMap holds the parsed Info field which can contain floats, ints and lists thereof.
 type InfoMap map[string]interface{}
 
+func (i InfoMap) Add(key string, o interface{}) {
+	i[key] = o
+	i["__order"] = append(i["__order"].([]string), key)
+}
+
 // Variant holds the information about a single site. It is analagous to a row in a VCF file.
 type Variant struct {
 	Chromosome string
@@ -113,7 +118,7 @@ func (m InfoMap) String() string {
 					}
 				case int:
 					for _, vv := range v.([]interface{}) {
-						s += fmt.Sprintf("%s=%d", k, vv.(float64))
+						s += fmt.Sprintf("%s=%d", k, vv.(int))
 					}
 				}
 			default:
