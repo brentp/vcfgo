@@ -31,6 +31,17 @@ var vcfStr = `##fileformat=VCFv4.2
 20	1230237	.	T	.	47	PASS	NS=3;DP=13;AA=T	GT:GQ:DP:HQ	0|0:54:7:56,60	0|0:48:4:51,51	0/0:61:2:.,.
 20	1234567	microsat1	GTC	G,GTCT	50	PASS	NS=3;DP=9;AA=G	GT:GQ:DP	0/1:35:4	0/2:17:2	1/1:40:3`
 
+var bedStr = `1	0	10000	0.061011
+1	10000	10154	0.070013
+1	10154	10200	0.126639
+1	10400	10535	0.053691
+1	10535	10625	0.078448
+1	10625	11084	0.053691
+1	11084	11159	0.078448
+1	11159	11325	0.053691
+1	11325	11400	0.078448
+1	11400	11404	0.053691`
+
 // no fileformat
 var badVcfStr = `##source=myImputationProgramV3.1
 ##reference=file:///seq/references/1000GenomesPilot-NCBI36.fasta
@@ -45,16 +56,16 @@ type HeaderSuite struct {
 	vcfStr string
 }
 
-/*
-type BadHeaderSuite struct {
-	reader  io.Reader
-	vcfStr string
-}*/
-var a = Suite(&HeaderSuite{vcfStr: vcfStr})
+type BadVcfSuite HeaderSuite
 
-//var b = Suite(&BadHeaderSuite{vcfStr: bad_vcfStr})
+var a = Suite(&HeaderSuite{vcfStr: vcfStr})
+var b = Suite(&BadVcfSuite{vcfStr: bedStr})
 
 func (s *HeaderSuite) SetUpTest(c *C) {
+	s.reader = strings.NewReader(s.vcfStr)
+}
+
+func (s *BadVcfSuite) SetUpTest(c *C) {
 	s.reader = strings.NewReader(s.vcfStr)
 }
 
@@ -66,6 +77,12 @@ func (s *HeaderSuite) TestReaderHeaderParseSample(c *C) {
 
 	fmt := v.Format
 	c.Assert(fmt, DeepEquals, []string{"GT", "GQ", "DP", "HQ"})
+}
+
+func (b *BadVcfSuite) TestReaderHeaderParseSample(c *C) {
+	r, err := NewReader(b.reader, false)
+	c.Assert(r, IsNil)
+	c.Assert(err, NotNil)
 }
 
 func (s *HeaderSuite) TestSamples(c *C) {

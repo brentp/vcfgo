@@ -108,8 +108,8 @@ func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
 			break
 
 		} else {
-			msg := fmt.Sprintf("unexpected header line: %s", line)
-			verr.Add(errors.New(msg), LineNumber)
+			e := fmt.Errorf("unexpected header line: %s", line)
+			return nil, e
 		}
 	}
 	verr.Add(scanner.Err(), LineNumber)
