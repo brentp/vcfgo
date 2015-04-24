@@ -60,7 +60,7 @@ func (v *Variant) Start() uint32 {
 
 // End returns the 0-based start + the length of the reference allele.
 func (v *Variant) End() uint32 {
-	return uint32(v.Pos) - uint32(1) + uint32(len(v.Ref))
+	return uint32(v.Pos-1) + uint32(len(v.Ref))
 }
 
 func fmtFloat(v float32) string {
@@ -99,7 +99,7 @@ func (m InfoMap) String() string {
 	s := ""
 	for j, k := range order {
 		v := m[k]
-		if v == true {
+		if b, ok := v.(bool); ok && b {
 			s += k
 		} else {
 			switch v.(type) {
@@ -173,6 +173,8 @@ func (v *Variant) String() string {
 			samps[i] = s.String(v.Format)
 		}
 		s += fmt.Sprintf("%s\t%s", strings.Join(v.Format, ":"), strings.Join(samps, "\t"))
+	} else if v.sampleStrings != nil && len(v.sampleStrings) != 0 {
+		s += fmt.Sprintf("%s\t%s", strings.Join(v.Format, ":"), strings.Join(v.sampleStrings, "\t"))
 	}
 	return s
 }
