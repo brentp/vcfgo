@@ -193,7 +193,7 @@ func NewHeader() *Header {
 func parseHeaderInfo(info string) (*Info, error) {
 	res := infoRegexp.FindStringSubmatch(info)
 	if len(res) != 5 {
-		return nil, fmt.Errorf("INFO error: %s, %r", info, res)
+		return nil, fmt.Errorf("INFO error: %s, %v", info, res)
 	}
 	var i Info
 	i.Id = res[1]

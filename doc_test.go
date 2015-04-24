@@ -18,7 +18,7 @@ func Example() {
 			break
 		}
 		fmt.Printf("%s\t%d\t%s\t%s\n", variant.Chromosome, variant.Pos, variant.Ref, variant.Alt)
-		fmt.Printf("%s", variant.Info["DP"].(int) > 10)
+		fmt.Printf("%v", variant.Info["DP"].(int) > 10)
 		// Output: asdf
 	}
 	// Print all accumulated errors to stderr
