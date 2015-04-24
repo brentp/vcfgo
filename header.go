@@ -297,7 +297,7 @@ func (h *Header) parseInfo(info string) (InfoMap, error) {
 	var v, iv interface{}
 	for _, tok := range toks {
 		// i from the header can tell us about the type of this
-		pair := strings.SplitN(tok, "=", 1)
+		pair := strings.SplitN(tok, "=", 2)
 		i, ok := h.Infos[pair[0]]
 		order = append(order, pair[0])
 		if !ok {
