@@ -297,19 +297,24 @@ func (h *Header) parseInfo(info string) (InfoMap, error) {
 	var v, iv interface{}
 	for _, tok := range toks {
 		// i from the header can tell us about the type of this
-		pair := strings.Split(tok, "=")
+		pair := strings.SplitN(tok, "=", 1)
 		i, ok := h.Infos[pair[0]]
 		order = append(order, pair[0])
 		if !ok {
 			err = fmt.Errorf("Info Error: %s not found in header", tok)
-			m[pair[0]] = pair[1]
+			if len(pair) == 1 {
+				m[pair[0]] = true
+			} else {
+				m[pair[0]] = pair[1]
+			}
 			continue
 		}
 		if len(pair) == 1 {
 			if i.Type != "Flag" {
 				err = fmt.Errorf("Info Error: flag field (%s) had value", pair[0])
 			}
-			pair = append(pair, "")
+			m[pair[0]] = true
+			continue
 		}
 		switch i.Number {
 		case "0":
