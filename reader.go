@@ -38,6 +38,7 @@ type Reader struct {
 	verr        *VCFError
 	LineNumber  int64
 	lazySamples bool
+	r           io.Reader
 }
 
 // NewReader returns a Reader.
@@ -113,7 +114,7 @@ func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
 		}
 	}
 	verr.Add(scanner.Err(), LineNumber)
-	reader := &Reader{scanner, h, verr, LineNumber, lazySamples}
+	reader := &Reader{scanner, h, verr, LineNumber, lazySamples, r}
 	return reader, reader.Error()
 }
 
