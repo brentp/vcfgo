@@ -125,7 +125,7 @@ func (m InfoMap) String() string {
 				s += fmt.Sprintf("%s=%s", k, v.(string))
 			}
 		}
-		if j < len(order)-1 {
+		if j < len(order)-1 && !strings.HasSuffix(s, ";") {
 			s += ";"
 		}
 	}
