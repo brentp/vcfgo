@@ -53,7 +53,7 @@ func (s *VariantSuite) TestInfoField(c *C) {
 	c.Assert(err, IsNil)
 	v := rdr.Read()
 	vstr := fmt.Sprintf("%s", v.Info)
-	c.Assert(vstr, Equals, "NS=3;DP=14;AF=0.50;DB;H2")
+	c.Assert(vstr, Equals, "NS=3;DP=14;AF=0.5;DB;H2")
 }
 
 func (s *VariantSuite) TestInfoMap(c *C) {
@@ -62,6 +62,6 @@ func (s *VariantSuite) TestInfoMap(c *C) {
 	v := rdr.Read()
 
 	vstr := fmt.Sprintf("%s", v)
-	c.Assert(vstr, Equals, "20\t14370\trs6054257\tG\tA\t29.0\tPASS\tNS=3;DP=14;AF=0.50;DB;H2\tGT:GQ:DP:HQ\t0|0:48:1:51,51\t1|0:48:8:51,51\t1/1:43:5:.,.")
+	c.Assert(vstr, Equals, "20\t14370\trs6054257\tG\tA\t29.0\tPASS\tNS=3;DP=14;AF=0.5;DB;H2\tGT:GQ:DP:HQ\t0|0:48:1:51,51\t1|0:48:8:51,51\t1/1:43:5:.,.")
 
 }
