@@ -12,7 +12,13 @@ type InfoMap map[string]interface{}
 
 func (i InfoMap) Add(key string, o interface{}) {
 	i[key] = o
-	i["__order"] = append(i["__order"].([]string), key)
+	order := i["__order"].([]string)
+	for i := len(order) - 1; i > -1; i-- {
+		if key == order[i] {
+			return
+		}
+	}
+	i["__order"] = append(order, key)
 }
 
 // Variant holds the information about a single site. It is analagous to a row in a VCF file.
@@ -66,21 +72,21 @@ func (v *Variant) End() uint32 {
 func fmtFloat(v float32) string {
 	var val string
 	if v > 0.02 || v < -0.02 {
-		val = fmt.Sprintf("%.2f", v)
+		val = fmt.Sprintf("%.4f", v)
 	} else {
-		val = fmt.Sprintf("%.5gf", v)
+		val = fmt.Sprintf("%.5g", v)
 	}
-	return val
+	return strings.TrimRight(val, "0")
 }
 
 func fmtFloat64(v float64) string {
 	var val string
 	if v > 0.02 || v < -0.02 {
-		val = fmt.Sprintf("%.2f", v)
+		val = fmt.Sprintf("%.4f", v)
 	} else {
-		val = fmt.Sprintf("%.5gf", v)
+		val = fmt.Sprintf("%.5g", v)
 	}
-	return val
+	return strings.TrimRight(val, "0")
 }
 
 // String returns a string that matches the original info field.
