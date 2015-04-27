@@ -30,6 +30,8 @@ import (
 	"strings"
 )
 
+const MISSING_VAL = 256
+
 // Reader holds information about the current line number (for errors) and
 // The VCF header that indicates the structure of records.
 type Reader struct {
@@ -139,7 +141,13 @@ func (vr *Reader) Read() *Variant {
 	pos, err := strconv.ParseUint(fields[1], 10, 64)
 	vr.verr.Add(err, vr.LineNumber)
 
-	qual, err := strconv.ParseFloat(fields[5], 32)
+	var qual float64
+	if fields[5] == "." {
+		qual = MISSING_VAL
+	} else {
+		qual, err = strconv.ParseFloat(fields[5], 32)
+	}
+
 	vr.verr.Add(err, vr.LineNumber)
 
 	v := &Variant{Chromosome: fields[0], Pos: pos, Id: fields[2], Ref: fields[3], Alt: strings.Split(fields[4], ","), Quality: float32(qual),

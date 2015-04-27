@@ -114,6 +114,6 @@ func (s *HeaderSuite) TestSamples(c *C) {
 		c.Assert(v.Chromosome, Equals, "20")
 		lastV = v
 	}
-	c.Assert(lastV.Pos, Equals, uint64(1234567))
+	c.Assert(int(lastV.Pos), Equals, int(1234567))
 	c.Assert(lastV.Filter, Equals, "PASS")
 }

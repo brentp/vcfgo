@@ -2,6 +2,7 @@ package vcfgo
 
 import (
 	"fmt"
+	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -66,7 +67,24 @@ func (v *Variant) Start() uint32 {
 
 // End returns the 0-based start + the length of the reference allele.
 func (v *Variant) End() uint32 {
-	return uint32(v.Pos-1) + uint32(len(v.Ref))
+	if v.Alt[0][0] != '<' {
+		return uint32(v.Pos-1) + uint32(len(v.Ref))
+	}
+	if end, ok := v.Info["END"]; ok {
+		e := end.(uint32)
+		if e < v.Start() { // DEL
+			return v.Start() + 1
+		}
+		return e
+	}
+	if strings.HasPrefix(v.Alt[0], "<INS") || strings.HasPrefix(v.Alt[0], "<DUP") {
+		if svlen, ok := v.Info["SVLEN"]; ok {
+			return uint32(v.Pos-1) + svlen.(uint32)
+		}
+		log.Fatalf("no svlen for variant %s:%d", v.Chrom, v.Pos)
+	}
+	// <INS
+	return uint32(v.Pos + 1)
 }
 
 func fmtFloat(v float32) string {
@@ -172,7 +190,13 @@ func NewSampleGenotype() *SampleGenotype {
 // String gives a string representation of a variant
 func (v *Variant) String() string {
 	//#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	1_dad	1_mom	1_kid	2_dad	2_mom	2_kid	3_dad	3_mom	3_kid
-	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%.1f\t%s\t%s\t", v.Chromosome, v.Pos, v.Id, v.Ref, strings.Join(v.Alt, ","), v.Quality, v.Filter, v.Info)
+	var qual string
+	if v.Quality == MISSING_VAL {
+		qual = "."
+	} else {
+		qual = fmt.Sprintf("%.1f", v.Quality)
+	}
+	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t", v.Chromosome, v.Pos, v.Id, v.Ref, strings.Join(v.Alt, ","), qual, v.Filter, v.Info)
 	if len(v.Samples) > 0 {
 		samps := make([]string, len(v.Samples))
 		for i, s := range v.Samples {
