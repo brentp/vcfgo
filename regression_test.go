@@ -1,9 +1,9 @@
 package vcfgo
 
 import (
+	"fmt"
 	. "gopkg.in/check.v1"
 	"io"
-	"log"
 	"strings"
 )
 
@@ -43,9 +43,8 @@ func (s *RegressionSuite) TestRegr1(c *C) {
 	v := rdr.Read()
 	snp, ok := v.Info["TYPE"]
 	c.Assert(ok, Equals, true)
-	log.Println(snp)
-	//c.Assert(snp, Equals, "snp")
+	c.Assert(snp, DeepEquals, []interface{}{"snp"})
 
-	//str := fmt.Sprintf("%s", v)
-	//c.Assert(str, Equals, "1	98683	.	G	A	610.487	.	AB=0.282443;ABP=56.8661;AC=11;AF=0.34375;AN=32;AO=45;CIGAR=1X;TYPE=snp")
+	str := fmt.Sprintf("%s", v)
+	c.Assert(str, Equals, "1\t98683\t.\tG\tA\t610.5\t.\tAB=0.2824;ABP=56.8661;AC=11;AF=0.3438;AN=32;AO=45;CIGAR=1X;TYPE=snp")
 }

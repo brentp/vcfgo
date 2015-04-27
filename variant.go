@@ -118,7 +118,6 @@ func (m InfoMap) String() string {
 			order = append(order, k)
 		}
 		sort.Strings(order)
-
 	}
 	s := ""
 	for j, k := range order {
@@ -143,6 +142,10 @@ func (m InfoMap) String() string {
 				case int:
 					for _, vv := range v.([]interface{}) {
 						s += fmt.Sprintf("%s=%d", k, vv.(int))
+					}
+				default:
+					for _, vv := range v.([]interface{}) {
+						s += fmt.Sprintf("%s=%s", k, vv)
 					}
 				}
 			default:
@@ -196,15 +199,15 @@ func (v *Variant) String() string {
 	} else {
 		qual = fmt.Sprintf("%.1f", v.Quality)
 	}
-	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t", v.Chromosome, v.Pos, v.Id, v.Ref, strings.Join(v.Alt, ","), qual, v.Filter, v.Info)
+	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s", v.Chromosome, v.Pos, v.Id, v.Ref, strings.Join(v.Alt, ","), qual, v.Filter, v.Info)
 	if len(v.Samples) > 0 {
 		samps := make([]string, len(v.Samples))
 		for i, s := range v.Samples {
 			samps[i] = s.String(v.Format)
 		}
-		s += fmt.Sprintf("%s\t%s", strings.Join(v.Format, ":"), strings.Join(samps, "\t"))
+		s += fmt.Sprintf("\t%s\t%s", strings.Join(v.Format, ":"), strings.Join(samps, "\t"))
 	} else if v.sampleStrings != nil && len(v.sampleStrings) != 0 {
-		s += fmt.Sprintf("%s\t%s", strings.Join(v.Format, ":"), strings.Join(v.sampleStrings, "\t"))
+		s += fmt.Sprintf("\t%s\t%s", strings.Join(v.Format, ":"), strings.Join(v.sampleStrings, "\t"))
 	}
 	return s
 }
