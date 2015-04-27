@@ -16,7 +16,7 @@ func main() {
 	f, err := os.Open(files[0])
 
 	r := io.Reader(f)
-	vr, err := vcfgo.NewReader(r)
+	vr, err := vcfgo.NewReader(r, false)
 	if err != nil {
 		panic(err)
 	}
