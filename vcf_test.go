@@ -66,6 +66,7 @@ func (s *VCFSuite) TestHeaderInfoParse(c *C) {
 		obs, err := parseHeaderInfo(v.input)
 		c.Assert(err, IsNil)
 		c.Assert(obs, DeepEquals, v.exp)
+		c.Assert(obs.String(), Equals, v.input)
 	}
 }
 
@@ -74,6 +75,8 @@ func (s *VCFSuite) TestHeaderFormatParse(c *C) {
 		obs, err := parseHeaderFormat(v.input)
 		c.Assert(err, IsNil)
 		c.Assert(obs, DeepEquals, v.exp)
+		c.Assert(obs.String(), Equals, v.input)
+
 	}
 }
 

@@ -64,4 +64,26 @@ func (s *VariantSuite) TestInfoMap(c *C) {
 	vstr := fmt.Sprintf("%s", v)
 	c.Assert(vstr, Equals, "20\t14370\trs6054257\tG\tA\t29.0\tPASS\tNS=3;DP=14;AF=0.5;DB;H2\tGT:GQ:DP:HQ\t0|0:48:1:51,51\t1|0:48:8:51,51\t1/1:43:5:.,.")
 
+	v.Info.Add("asdf", 123)
+	v.Info.Add("float", float32(123.2))
+	has := false
+	for _, entry := range v.Info["__order"].([]string) {
+		if entry == "asdf" {
+			has = true
+		}
+	}
+	c.Assert(has, Equals, true)
+	c.Assert(v.Info["float"], Equals, float32(123.2))
+
+	c.Assert(fmt.Sprintf("%s", v.Info), Equals, "NS=3;DP=14;AF=0.5;DB;H2;asdf=123;float=123.2")
+
+	rdr.Clear()
+
+}
+
+func (s *VariantSuite) TestIs(c *C) {
+	rdr, err := NewReader(s.reader, false)
+	v := rdr.Read()
+	c.Assert(err, IsNil)
+	c.Assert(v.Is(v), Equals, true)
 }
