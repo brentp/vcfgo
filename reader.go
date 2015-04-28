@@ -91,8 +91,10 @@ func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
 			contig, err := parseHeaderContig(line)
 			verr.Add(err, LineNumber)
 			if contig != nil {
-				if cname, ok := contig["ID"]; ok {
-					h.Contigs[cname] = contig
+				if _, ok := contig["ID"]; ok {
+					h.Contigs = append(h.Contigs, contig)
+				} else {
+					verr.Add(fmt.Errorf("bad contig: %v", line), LineNumber)
 				}
 			}
 

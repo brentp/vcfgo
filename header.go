@@ -36,8 +36,8 @@ type Header struct {
 	Filters       map[string]string
 	Extras        map[string]string
 	FileFormat    string
-	// contid id maps to a map of length, URL, etc.
-	Contigs map[string]map[string]string
+	// Contigs is a list of maps of length, URL, etc.
+	Contigs []map[string]string
 	// TOOD: make Contig struct
 }
 
@@ -186,7 +186,7 @@ func NewHeader() *Header {
 	h.SampleFormats = make(map[string]*SampleFormat)
 	h.SampleNames = make([]string, 0)
 	h.Extras = make(map[string]string)
-	h.Contigs = make(map[string]map[string]string)
+	h.Contigs = make([]map[string]string, 0, 64)
 	return &h
 }
 
