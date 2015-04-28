@@ -70,21 +70,27 @@ func (v *Variant) End() uint32 {
 	if v.Alt[0][0] != '<' {
 		return uint32(v.Pos-1) + uint32(len(v.Ref))
 	}
-	if end, ok := v.Info["END"]; ok {
-		e := end.(uint32)
-		if e < v.Start() { // DEL
-			return v.Start() + 1
-		}
-		return e
-	}
-	if strings.HasPrefix(v.Alt[0], "<INS") || strings.HasPrefix(v.Alt[0], "<DUP") {
+	if strings.HasPrefix(v.Alt[0], "<DEL") || strings.HasPrefix(v.Alt[0], "<DUP") {
 		if svlen, ok := v.Info["SVLEN"]; ok {
-			return uint32(v.Pos-1) + svlen.(uint32)
+			var slen int
+			switch svlen.(type) {
+			case int:
+				slen = svlen.(int)
+			case []interface{}:
+				slen = svlen.([]interface{})[0].(int)
+			}
+			if slen < 0 {
+				slen = -slen
+			}
+			return uint32(int(v.Pos) + slen)
+
+		} else if end, ok := v.Info["END"]; ok {
+			return uint32(end.(int))
 		}
-		log.Fatalf("no svlen for variant %s:%d", v.Chrom, v.Pos)
+		log.Fatalf("no svlen for variant %s:%d", v.Chromosome, v.Pos)
 	}
-	// <INS
-	return uint32(v.Pos + 1)
+	// <INS and BND's get handled by this.
+	return uint32(v.Pos)
 }
 
 func fmtFloat(v float32) string {

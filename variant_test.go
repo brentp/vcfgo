@@ -2,9 +2,10 @@ package vcfgo
 
 import (
 	"fmt"
-	. "gopkg.in/check.v1"
 	"io"
 	"strings"
+
+	. "gopkg.in/check.v1"
 )
 
 type VariantSuite struct {
