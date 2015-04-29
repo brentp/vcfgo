@@ -100,7 +100,7 @@ func fmtFloat(v float32) string {
 	} else {
 		val = fmt.Sprintf("%.5g", v)
 	}
-	return strings.TrimRight(val, "0")
+	return strings.TrimRight(strings.TrimRight(val, "0"), ".")
 }
 
 func fmtFloat64(v float64) string {
@@ -110,7 +110,7 @@ func fmtFloat64(v float64) string {
 	} else {
 		val = fmt.Sprintf("%.5g", v)
 	}
-	return strings.TrimRight(val, "0")
+	return strings.TrimRight(strings.TrimRight(val, "0"), ".")
 }
 
 // String returns a string that matches the original info field.
@@ -138,6 +138,8 @@ func (m InfoMap) String() string {
 				s += k + "=" + fmtFloat64(v.(float64))
 			case int:
 				s += fmt.Sprintf("%s=%d", k, v.(int))
+			case uint32:
+				s += fmt.Sprintf("%s=%d", k, v.(uint32))
 			case []interface{}:
 
 				switch v.([]interface{})[0].(type) {
