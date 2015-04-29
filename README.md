@@ -1,6 +1,6 @@
 [![GoDoc](https://godoc.org/github.com/brentp/vcfgo?status.svg)](https://godoc.org/github.com/brentp/vcfgo)
 [![Build Status](https://travis-ci.org/brentp/vcfgo.svg)](https://travis-ci.org/brentp/vcfgo)
-[![Coverage Status](https://coveralls.io/repos/brentp/vcfgo/badge.svg?branch=master)](https://coveralls.io/r/brentp/vcfgo?branch=master)
+[![Coverage Status](https://coveralls.io/repos/brentp/vcfgo/badge.svg)](https://coveralls.io/r/brentp/vcfgo)
 
 vcfgo is a golang library to read, write and manipulate files in the variant call format.
 
