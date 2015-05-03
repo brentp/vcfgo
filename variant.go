@@ -78,6 +78,8 @@ func (v *Variant) End() uint32 {
 				slen = svlen.(int)
 			case []interface{}:
 				slen = svlen.([]interface{})[0].(int)
+			default:
+				log.Fatalf("non int type for SVLEN")
 			}
 			if slen < 0 {
 				slen = -slen
