@@ -82,9 +82,22 @@ func (s *VariantSuite) TestInfoMap(c *C) {
 
 }
 
+func (s *VariantSuite) TestStartEnd(c *C) {
+	rdr, err := NewReader(s.reader, false)
+	c.Assert(err, IsNil)
+	v := rdr.Read()
+
+	c.Assert(int(v.Start()), Equals, 14369)
+	c.Assert(int(v.End()), Equals, 14370)
+}
+
 func (s *VariantSuite) TestIs(c *C) {
 	rdr, err := NewReader(s.reader, false)
-	v := rdr.Read()
 	c.Assert(err, IsNil)
-	c.Assert(v.Is(v), Equals, true)
+	v1 := rdr.Read()
+	v2 := rdr.Read()
+	c.Assert(v1.Is(v1), Equals, true)
+
+	c.Assert(v1.Is(v2), Equals, false)
+	c.Assert(v2.Is(v1), Equals, false)
 }

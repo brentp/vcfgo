@@ -1,9 +1,10 @@
 package vcfgo
 
 import (
-	. "gopkg.in/check.v1"
 	"io"
 	"strings"
+
+	. "gopkg.in/check.v1"
 )
 
 var vcfStr = `##fileformat=VCFv4.2
@@ -116,4 +117,24 @@ func (s *HeaderSuite) TestSamples(c *C) {
 	}
 	c.Assert(int(lastV.Pos), Equals, int(1234567))
 	c.Assert(lastV.Filter, Equals, "PASS")
+}
+
+func (s *VariantSuite) TestParseOne(c *C) {
+
+	v, err := parseOne("key", "123", "Integer")
+	c.Assert(err, IsNil)
+	c.Assert(v, Equals, 123)
+
+	v1, err := parseOne("key", "a123", "String")
+	c.Assert(err, IsNil)
+	c.Assert(v1, Equals, "a123")
+
+	v2, err := parseOne("key", "asdf", "Flag")
+	c.Assert(err, ErrorMatches, ".*flag field .* had value")
+	c.Assert(v2, Equals, true)
+
+	v3, err := parseOne("key", "", "Flag")
+	c.Assert(err, IsNil)
+	c.Assert(v3, Equals, true)
+
 }
