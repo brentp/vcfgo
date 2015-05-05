@@ -70,7 +70,7 @@ func (v *Variant) End() uint32 {
 	if v.Alt[0][0] != '<' {
 		return uint32(v.Pos-1) + uint32(len(v.Ref))
 	}
-	if strings.HasPrefix(v.Alt[0], "<DEL") || strings.HasPrefix(v.Alt[0], "<DUP") {
+	if strings.HasPrefix(v.Alt[0], "<DEL") || strings.HasPrefix(v.Alt[0], "<DUP") || strings.HasPrefix(v.Alt[0], "<INV") || strings.HasPrefix(v.Alt[0], "<CN") {
 		if svlen, ok := v.Info["SVLEN"]; ok {
 			var slen int
 			switch svlen.(type) {
@@ -78,6 +78,8 @@ func (v *Variant) End() uint32 {
 				slen = svlen.(int)
 			case []interface{}:
 				slen = svlen.([]interface{})[0].(int)
+			case interface{}:
+				slen = svlen.(int)
 			default:
 				log.Fatalf("non int type for SVLEN")
 			}
