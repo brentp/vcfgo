@@ -332,7 +332,16 @@ func (h *Header) parseInfo(info string) (InfoMap, error) {
 				v.([]interface{})[j] = iv
 			}
 		default:
-			panic(fmt.Sprintf("found Number=%s", i.Number))
+			vals := strings.Split(pair[1], ",")
+			if _, err := strconv.Atoi(i.Number); err == nil {
+				v = make([]interface{}, len(vals))
+				for j, val := range vals {
+					iv, err = parseOne(pair[0], val, i.Type)
+					v.([]interface{})[j] = iv
+				}
+			} else {
+				panic(fmt.Sprintf("found Number=%s", i.Number))
+			}
 
 		}
 		m[pair[0]] = v

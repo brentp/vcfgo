@@ -1,15 +1,11 @@
 package vcfgo
 
-import (
-	"bytes"
-	"errors"
-)
-
 func leftalign(pos int, ref []byte, alt []byte, seq []byte) (int, []byte, []byte, error) {
+	/* actually this isn't necessary
 	if !bytes.HasSuffix(seq, ref) {
 		return 0, ref, alt, errors.New("leftalign: sequence should end with ref")
 	}
-
+	*/
 	subseq := seq[:len(seq)-len(ref)]
 
 	quit := false
