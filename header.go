@@ -291,8 +291,8 @@ func parseOne(key, val, itype string) (interface{}, error) {
 
 func (h *Header) parseInfo(info string) (InfoMap, error) {
 	toks := strings.Split(info, ";")
-	m := make(InfoMap)
-	var order []string // keep order of fields so we print in same order
+	m := make(InfoMap, len(toks)/2)
+	order := make([]string, 0, len(toks)/2) // keep order of fields so we print in same order
 	var err error
 	var v, iv interface{}
 	for _, tok := range toks {
