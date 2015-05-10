@@ -13,7 +13,15 @@ type InfoMap map[string]interface{}
 
 func (i InfoMap) Add(key string, o interface{}) {
 	i[key] = o
-	order := i["__order"].([]string)
+	var order []string
+	if ord, ok := i["__order"]; !ok {
+		order = make([]string, 0)
+		for k := range i {
+			order = append(order, k)
+		}
+	} else {
+		order = ord.([]string)
+	}
 	for i := len(order) - 1; i > -1; i-- {
 		if key == order[i] {
 			return
