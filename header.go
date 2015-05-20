@@ -76,7 +76,9 @@ func (h *Header) parseSample(format []string, s string) (*SampleGenotype, []erro
 		case "DP":
 			e = h.setSampleDP(geno, value)
 		case "GL":
-			e = h.setSampleGL(geno, value)
+			e = h.setSampleGL(geno, value, false)
+		case "PL":
+			e = h.setSampleGL(geno, value, true)
 		case "GQ":
 			if format, ok := h.SampleFormats[field]; ok {
 				e = h.setSampleGQ(geno, value, format.Type)
@@ -118,7 +120,7 @@ func (h *Header) setSampleGQ(geno *SampleGenotype, value string, Type string) er
 	return err
 }
 
-func (h *Header) setSampleGL(geno *SampleGenotype, value string) error {
+func (h *Header) setSampleGL(geno *SampleGenotype, value string, isPL bool) error {
 	var err error
 	if len(geno.GL) != 0 {
 		geno.GL = geno.GL[:0]
@@ -127,6 +129,10 @@ func (h *Header) setSampleGL(geno *SampleGenotype, value string) error {
 	var v float64
 	for _, val := range vals {
 		v, err = strconv.ParseFloat(val, 32)
+		if isPL {
+			v /= -10.0
+		}
+
 		/*if err != nil {
 			return err
 		}*/
