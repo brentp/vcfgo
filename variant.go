@@ -230,7 +230,6 @@ func NewSampleGenotype() *SampleGenotype {
 
 // String gives a string representation of a variant
 func (v *Variant) String() string {
-	//#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	1_dad	1_mom	1_kid	2_dad	2_mom	2_kid	3_dad	3_mom	3_kid
 	var qual string
 	if v.Quality == MISSING_VAL {
 		qual = "."
