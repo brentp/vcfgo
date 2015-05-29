@@ -48,3 +48,34 @@ func (s *SplitAltSuite) TestSplitR(c *C) {
 	out, err = splitR(in, 2, 2)
 	c.Assert(err, Not(IsNil))
 }
+
+func (s *SplitAltSuite) TestSplitG(c *C) {
+
+	in := []interface{}{281, 5, 9, 58, 0, 115, 338, 46, 116, 809}
+	out, err := splitG(in, 1, 3)
+	c.Assert(err, IsNil)
+	c.Assert(out, DeepEquals, []interface{}{281, 5, 9})
+
+	out, err = splitG(in, 2, 3)
+	c.Assert(err, IsNil)
+	c.Assert(out, DeepEquals, []interface{}{281, 58, 115})
+
+	in = []interface{}{0, 30, 323, 31, 365, 483, 38, 291, 325, 567}
+	out, err = splitG(in, 3, 3)
+	c.Assert(err, IsNil)
+	c.Assert(out, DeepEquals, []interface{}{0, 38, 567})
+
+}
+func (s *SplitAltSuite) TestSplitGT(c *C) {
+
+	in := []interface{}{"1", "2"}
+	out, err := splitGT(in, 3)
+	c.Assert(err, IsNil)
+	c.Assert(out, DeepEquals, []interface{}{".", "."})
+
+	in = []interface{}{"1", "2"}
+	out, err = splitGT(in, 2)
+	c.Assert(err, IsNil)
+	c.Assert(out, DeepEquals, []interface{}{".", "1"})
+
+}
