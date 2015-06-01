@@ -30,6 +30,78 @@ func (i InfoMap) Add(key string, o interface{}) {
 	i["__order"] = append(order, key)
 }
 
+// String returns a string that matches the original info field.
+func (m InfoMap) String() string {
+	var order []string
+	// use __order internally to keep order of keys.
+	order, ok := m["__order"].([]string)
+	if !ok {
+		order = make([]string, 0)
+		for k := range m {
+			order = append(order, k)
+		}
+		sort.Strings(order)
+	}
+	s := ""
+	for j, k := range order {
+		v := m[k]
+		if b, ok := v.(bool); ok && b {
+			s += k
+		} else {
+			switch v.(type) {
+			case float32:
+				s += k + "=" + fmtFloat32(v.(float32))
+			case float64:
+				s += k + "=" + fmtFloat64(v.(float64))
+			case int:
+				s += fmt.Sprintf("%s=%d", k, v.(int))
+			case uint32:
+				s += fmt.Sprintf("%s=%d", k, v.(uint32))
+			case []interface{}:
+				vals := v.([]interface{})
+				svals := make([]string, len(vals))
+				switch vals[0].(type) {
+				case float64:
+					for i, val := range vals {
+						svals[i] = fmtFloat64(val.(float64))
+					}
+				case float32:
+					for i, val := range vals {
+						svals[i] = fmtFloat32(val.(float32))
+					}
+				case int:
+					for i, val := range vals {
+						svals[i] = strconv.Itoa(val.(int))
+					}
+				default:
+					for i, val := range vals {
+						svals[i] = fmt.Sprintf("%v", val)
+					}
+				}
+
+				s += fmt.Sprintf("%s=%s", k, strings.Join(svals, ","))
+			default:
+				s += fmt.Sprintf("%s=%s", k, v.(string))
+			}
+		}
+		if j < len(order)-1 && !strings.HasSuffix(s, ";") {
+			s += ";"
+		}
+	}
+	return s
+}
+
+func (i InfoMap) Keys() []string {
+	if keys, ok := i["__order"]; ok {
+		return keys.([]string)
+	}
+	keys := make([]string, 0)
+	for k := range i {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
 // Variant holds the information about a single site. It is analagous to a row in a VCF file.
 type Variant struct {
 	Chromosome string
@@ -105,7 +177,7 @@ func (v *Variant) End() uint32 {
 	return uint32(v.Pos)
 }
 
-func fmtFloat(v float32) string {
+func fmtFloat32(v float32) string {
 	var val string
 	if v > 0.02 || v < -0.02 {
 		val = fmt.Sprintf("%.4f", v)
@@ -123,60 +195,6 @@ func fmtFloat64(v float64) string {
 		val = fmt.Sprintf("%.5g", v)
 	}
 	return strings.TrimRight(strings.TrimRight(val, "0"), ".")
-}
-
-// String returns a string that matches the original info field.
-func (m InfoMap) String() string {
-	var order []string
-	// use __order internally to keep order of keys.
-	order, ok := m["__order"].([]string)
-	if !ok {
-		order = make([]string, 0)
-		for k := range m {
-			order = append(order, k)
-		}
-		sort.Strings(order)
-	}
-	s := ""
-	for j, k := range order {
-		v := m[k]
-		if b, ok := v.(bool); ok && b {
-			s += k
-		} else {
-			switch v.(type) {
-			case float32:
-				s += k + "=" + fmtFloat(v.(float32))
-			case float64:
-				s += k + "=" + fmtFloat64(v.(float64))
-			case int:
-				s += fmt.Sprintf("%s=%d", k, v.(int))
-			case uint32:
-				s += fmt.Sprintf("%s=%d", k, v.(uint32))
-			case []interface{}:
-
-				switch v.([]interface{})[0].(type) {
-				case float64:
-					for _, vv := range v.([]interface{}) {
-						s += k + "=" + fmtFloat64(vv.(float64))
-					}
-				case int:
-					for _, vv := range v.([]interface{}) {
-						s += fmt.Sprintf("%s=%d", k, vv.(int))
-					}
-				default:
-					for _, vv := range v.([]interface{}) {
-						s += fmt.Sprintf("%s=%s", k, vv)
-					}
-				}
-			default:
-				s += fmt.Sprintf("%s=%s", k, v.(string))
-			}
-		}
-		if j < len(order)-1 && !strings.HasSuffix(s, ";") {
-			s += ";"
-		}
-	}
-	return s
 }
 
 // SampleGenotype holds the information about a sample. Several fields are pre-parsed, but
