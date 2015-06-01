@@ -33,6 +33,14 @@ func NewWriter(w io.Writer, h *Header) (*Writer, error) {
 		fmt.Fprintln(w, ">")
 	}
 
+	for sampleId := range h.Samples {
+		fmt.Fprintln(w, h.Samples[sampleId])
+	}
+
+	for i := range h.Pedigrees {
+		fmt.Fprintln(w, h.Pedigrees[i])
+	}
+
 	for k, v := range h.Filters {
 		fmt.Fprintf(w, "##FILTER=<ID=%s,Description=\"%s\">\n", k, v)
 	}

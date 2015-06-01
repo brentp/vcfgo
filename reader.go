@@ -97,7 +97,16 @@ func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
 					verr.Add(fmt.Errorf("bad contig: %v", line), LineNumber)
 				}
 			}
-
+		} else if strings.HasPrefix(line, "##SAMPLE") {
+			sample, err := parseHeaderSample(line)
+			verr.Add(err, LineNumber)
+			if sample != "" {
+				h.Samples[sample] = line
+			} else {
+				verr.Add(fmt.Errorf("bad sample: %v", line), LineNumber)
+			}
+		} else if strings.HasPrefix(line, "##PEDIGREE") {
+			h.Pedigrees = append(h.Pedigrees, line)
 		} else if strings.HasPrefix(line, "##") {
 			kv, err := parseHeaderExtraKV(line)
 			verr.Add(err, LineNumber)

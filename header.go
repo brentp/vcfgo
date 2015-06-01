@@ -15,6 +15,10 @@ var infoRegexp = regexp.MustCompile(fmt.Sprintf(`##INFO=<ID=(.+),Number=([\dAGR\
 var formatRegexp = regexp.MustCompile(fmt.Sprintf(`##FORMAT=<ID=(.+),Number=([\dAGR\.]?),Type=(%s),Description="(.+)">`, typeRe))
 var filterRegexp = regexp.MustCompile(`##FILTER=<ID=(.+),Description="(.+)">`)
 var contigRegexp = regexp.MustCompile(`contig=<.*((\w+)=([^,>]+))`)
+var sampleRegexp = regexp.MustCompile(`SAMPLE=<ID=([^,>]+)`)
+var pedRegexp = regexp.MustCompile(`PEDIGREE=<=([^,>]+)`)
+
+//var headerIdRegexp = regexp.MustCompile(`##([^=]+)=<ID=([^,]+)`)
 var fileVersionRegexp = regexp.MustCompile(`##fileformat=VCFv(.+)`)
 
 // Info holds the Info and Format fields
@@ -38,7 +42,9 @@ type Header struct {
 	FileFormat    string
 	// Contigs is a list of maps of length, URL, etc.
 	Contigs []map[string]string
-	// TOOD: make Contig struct
+	// ##SAMPLE
+	Samples   map[string]string
+	Pedigrees []string
 }
 
 // String returns a string representation.
@@ -191,6 +197,8 @@ func NewHeader() *Header {
 	h.Infos = make(map[string]*Info)
 	h.SampleFormats = make(map[string]*SampleFormat)
 	h.SampleNames = make([]string, 0)
+	h.Pedigrees = make([]string, 0)
+	h.Samples = make(map[string]string)
 	h.Extras = make(map[string]string)
 	h.Contigs = make([]map[string]string, 0, 64)
 	return &h
@@ -254,6 +262,15 @@ func parseHeaderFilter(info string) ([]string, error) {
 		return nil, fmt.Errorf("FILTER error: %s", info)
 	}
 	return res[1:3], nil
+}
+
+// return just the sample id.
+func parseHeaderSample(line string) (string, error) {
+	res := sampleRegexp.FindStringSubmatch(line)
+	if len(res) != 2 {
+		return "", fmt.Errorf("error parsing ##SAMPLE")
+	}
+	return res[1], nil
 }
 
 func parseHeaderFileVersion(format string) (string, error) {
