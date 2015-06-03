@@ -35,6 +35,27 @@ func split(v *Variant, i int, nAlts int) error {
 			v.Info[k] = s
 		}
 	}
+	v.Header.ParseSamples(v)
+	for _, h := range v.Header.SampleFormats {
+		if h.Number != "A" && h.Number != "G" && h.Number != "R" {
+			continue
+		}
+		/*
+			for j, samp := range v.Samples {
+				switch h.Number {
+				case "A":
+					// TODO: should this still be a list?
+					var s interface{}
+					s, err = splitA(samp.Fields[k], i, nAlts)
+					//samp.Fields[k] = s
+
+				case "G":
+
+				case "R":
+				}
+			}
+		*/
+	}
 	// TODO: v.Samples
 	return err
 }

@@ -1,6 +1,7 @@
 package vcfgo
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"sort"
@@ -203,15 +204,52 @@ type SampleGenotype struct {
 	Phased bool
 	GT     []int
 	DP     int
-	GL     []float32
+	GL     []float64
 	GQ     int
 	MQ     int
-	// TODO: add methods for Ref, Alt depth.
 	Fields map[string]string
+}
+
+// RefDepths returns the depths of the alternates for this sample
+func (s *SampleGenotype) RefDepth() (int, error) {
+	if ad, ok := s.Fields["AD"]; ok {
+		idx := strings.Index(ad, ",")
+		return strconv.Atoi(ad[:idx])
+	}
+	if ro, ok := s.Fields["RO"]; ok {
+		return strconv.Atoi(ro)
+	}
+	return 0, errors.New("only freebayes and gatk depths supported at this time")
+}
+
+// AltDepths returns the depths of the alternates for this sample
+func (s *SampleGenotype) AltDepths() ([]int, error) {
+	var svals []string
+	if ad, ok := s.Fields["AD"]; ok {
+		idx := strings.Index(ad, ",")
+		svals = strings.Split(ad[idx+1:], ",")
+	} else if ro, ok := s.Fields["AO"]; ok {
+		svals = strings.Split(ro, ",")
+	} else {
+		return []int{}, errors.New("only freebayes and GATK supported for ref/alt depths")
+	}
+	vals := make([]int, len(svals))
+	for i := range svals {
+		v, err := strconv.Atoi(svals[i])
+		if err != nil {
+			return []int{}, err
+		}
+		vals[i] = v
+	}
+	return vals, nil
 }
 
 // String returns the string representation of the sample field.
 func (sg *SampleGenotype) String(fields []string) string {
+	if len(fields) == 0 {
+		return "."
+	}
+
 	s := make([]string, len(fields))
 	for i, f := range fields {
 		s[i] = sg.Fields[f]
@@ -223,7 +261,7 @@ func (sg *SampleGenotype) String(fields []string) string {
 func NewSampleGenotype() *SampleGenotype {
 	s := &SampleGenotype{}
 	s.GT = make([]int, 0, 2)
-	s.GL = make([]float32, 0, 3)
+	s.GL = make([]float64, 0, 3)
 	s.Fields = make(map[string]string)
 	return s
 }

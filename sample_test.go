@@ -80,3 +80,58 @@ func (s *SampleSuite) TestWriterPedigree(c *C) {
 	c.Assert(strings.Contains(str, "\n##PEDIGREE=<Name_0=G1-ID,"), Equals, true)
 
 }
+
+func (s *SampleSuite) TestSampleRefDepth(c *C) {
+	sg := NewSampleGenotype()
+	sg.Fields = map[string]string{
+		"AD": "22,34",
+	}
+	ref, err := sg.RefDepth()
+	c.Assert(err, IsNil)
+	c.Assert(ref, Equals, 22)
+
+	sg.Fields = map[string]string{
+		"AA": "22,34",
+		"RO": "55",
+	}
+	ref, err = sg.RefDepth()
+	c.Assert(err, IsNil)
+	c.Assert(ref, Equals, 55)
+
+}
+
+func (s *SampleSuite) TestSampleAltDepths(c *C) {
+	sg := NewSampleGenotype()
+	sg.Fields = map[string]string{
+		"AD": "22,34",
+	}
+	alts, err := sg.AltDepths()
+	c.Assert(err, IsNil)
+	c.Assert(alts, DeepEquals, []int{34})
+
+	sg.Fields = map[string]string{
+		"AD": "22,34,66",
+	}
+	alts, err = sg.AltDepths()
+	c.Assert(err, IsNil)
+	c.Assert(alts, DeepEquals, []int{34, 66})
+
+	sg.Fields = map[string]string{
+		"AA": "22,34",
+		"RO": "55",
+		"AO": "66",
+	}
+	alts, err = sg.AltDepths()
+	c.Assert(err, IsNil)
+	c.Assert(alts, DeepEquals, []int{66})
+
+	sg.Fields = map[string]string{
+		"AA": "22,34",
+		"RO": "55",
+		"AO": "66,88",
+	}
+	alts, err = sg.AltDepths()
+	c.Assert(err, IsNil)
+	c.Assert(alts, DeepEquals, []int{66, 88})
+
+}

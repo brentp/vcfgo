@@ -169,7 +169,7 @@ func (vr *Reader) Read() *Variant {
 		if len(fields) > 9 {
 			v.sampleStrings = fields[9:]
 			if !vr.lazySamples {
-				vr.ParseSamples(v)
+				vr.verr.Add(vr.Header.ParseSamples(v), vr.LineNumber)
 			}
 
 		}
@@ -182,19 +182,24 @@ func (vr *Reader) Read() *Variant {
 }
 
 // Force parsing of the sample fields.
-func (vr *Reader) ParseSamples(v *Variant) {
+func (h *Header) ParseSamples(v *Variant) error {
 	if v.Format == nil || v.sampleStrings == nil || v.Samples != nil {
-		return
+		return nil
 	}
-	v.Samples = make([]*SampleGenotype, len(vr.Header.SampleNames))
+	var errors []error
+	v.Samples = make([]*SampleGenotype, len(h.SampleNames))
+
 	for i, sample := range v.sampleStrings {
-		geno, errors := vr.Header.parseSample(v.Format, sample)
-		for _, e := range errors {
-			vr.verr.Add(e, vr.LineNumber)
-		}
+		var geno *SampleGenotype
+		geno, errors = h.parseSample(v.Format, sample)
+
 		v.Samples[i] = geno
 	}
 	v.sampleStrings = nil
+	if len(errors) > 0 {
+		return errors[0]
+	}
+	return nil
 }
 
 // Error() aggregates the multiple errors that can occur into a single object.

@@ -65,5 +65,5 @@ func NewWriter(w io.Writer, h *Header) (*Writer, error) {
 
 // WriteVariant writes a single variant
 func (w *Writer) WriteVariant(v *Variant) {
-	fmt.Println(w, v)
+	fmt.Fprintln(w, v)
 }

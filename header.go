@@ -66,7 +66,7 @@ func (h *Header) Validate(verr *VCFError) []error {
 func (h *Header) parseSample(format []string, s string) (*SampleGenotype, []error) {
 	values := strings.Split(s, ":")
 	if len(format) != len(values) {
-		return nil, []error{fmt.Errorf("bad sample string: %s", s)}
+		return NewSampleGenotype(), []error{fmt.Errorf("bad sample string: %s", s)}
 	}
 	//if geno == nil {
 	var value string
@@ -134,15 +134,11 @@ func (h *Header) setSampleGL(geno *SampleGenotype, value string, isPL bool) erro
 	vals := strings.Split(value, ",")
 	var v float64
 	for _, val := range vals {
-		v, err = strconv.ParseFloat(val, 32)
+		v, err = strconv.ParseFloat(val, 64)
 		if isPL {
 			v /= -10.0
 		}
-
-		/*if err != nil {
-			return err
-		}*/
-		geno.GL = append(geno.GL, float32(v))
+		geno.GL = append(geno.GL, v)
 	}
 	return err
 }
