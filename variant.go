@@ -53,7 +53,7 @@ func (m InfoMap) String() string {
 			case float32:
 				s += k + "=" + fmtFloat32(v.(float32))
 			case float64:
-				s += k + "=" + fmtFloat64(v.(float64))
+				s += (k + "=" + fmtFloat64(v.(float64)))
 			case int:
 				s += fmt.Sprintf("%s=%d", k, v.(int))
 			case uint32:
@@ -185,7 +185,11 @@ func fmtFloat32(v float32) string {
 	} else {
 		val = fmt.Sprintf("%.5g", v)
 	}
-	return strings.TrimRight(strings.TrimRight(val, "0"), ".")
+	val = strings.TrimRight(strings.TrimRight(val, "0"), ".")
+	if val == "" {
+		val = "0"
+	}
+	return val
 }
 
 func fmtFloat64(v float64) string {
@@ -195,7 +199,11 @@ func fmtFloat64(v float64) string {
 	} else {
 		val = fmt.Sprintf("%.5g", v)
 	}
-	return strings.TrimRight(strings.TrimRight(val, "0"), ".")
+	val = strings.TrimRight(strings.TrimRight(val, "0"), ".")
+	if val == "" {
+		val = "0"
+	}
+	return val
 }
 
 // SampleGenotype holds the information about a sample. Several fields are pre-parsed, but
