@@ -147,7 +147,10 @@ func (h *Header) setSampleGT(geno *SampleGenotype, value string) error {
 	if len(geno.GT) != 0 {
 		geno.GT = geno.GT[:0]
 	}
-	if (value[1] == '/' || value[1] == '|') && len(value) == 3 {
+	if value == "." {
+		geno.GT = []int{-1, -1}
+		geno.Phased = false
+	} else if (value[1] == '/' || value[1] == '|') && len(value) == 3 {
 		geno.Phased = value[1] == '|'
 		var v int
 		if value[0] == '.' {
@@ -162,9 +165,6 @@ func (h *Header) setSampleGT(geno *SampleGenotype, value string) error {
 			v = int(value[2] - '0') // convert to int
 		}
 		geno.GT = append(geno.GT, v)
-	} else if value == "." {
-		geno.GT = []int{-1, -1}
-		geno.Phased = false
 	} else {
 		geno.Phased = strings.Contains(value, "|")
 		splitString := "/"
