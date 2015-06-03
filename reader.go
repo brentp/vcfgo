@@ -36,7 +36,7 @@ const MISSING_VAL = 256
 // Reader holds information about the current line number (for errors) and
 // The VCF header that indicates the structure of records.
 type Reader struct {
-	scanner     *bufio.Scanner
+	buf         *bufio.Reader
 	Header      *Header
 	verr        *VCFError
 	LineNumber  int64
@@ -48,18 +48,23 @@ type Reader struct {
 // If lazySamples is true, then the user will have to call Reader.ParseSamples()
 // in order to access simple info.
 func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
-	scanner := bufio.NewScanner(r)
-	scanner.Split(bufio.ScanLines)
+	buffered := bufio.NewReaderSize(r, 32768*16)
 
 	var verr = NewVCFError()
 
 	var LineNumber int64
 	h := NewHeader()
 
-	for scanner.Scan() {
+	for {
 
-		line := scanner.Text()
 		LineNumber++
+		line, err := buffered.ReadString(byte('\n'))
+		if err != nil && err != io.EOF {
+			verr.Add(err, LineNumber)
+		}
+		if len(line) > 1 && line[len(line)-1] == '\n' {
+			line = line[:len(line)-1]
+		}
 
 		if LineNumber == 1 {
 			v, err := parseHeaderFileVersion(line)
@@ -127,24 +132,27 @@ func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
 			return nil, e
 		}
 	}
-	verr.Add(scanner.Err(), LineNumber)
-	reader := &Reader{scanner, h, verr, LineNumber, lazySamples, r}
+	reader := &Reader{buffered, h, verr, LineNumber, lazySamples, r}
 	return reader, reader.Error()
 }
 
 // Read returns a pointer to a Variant. Upon reading the caller is assumed
 // to check Reader.Err()
 func (vr *Reader) Read() *Variant {
-	if !vr.scanner.Scan() {
-		err := vr.scanner.Err()
-		if err != nil {
+
+	line, err := vr.buf.ReadString('\n')
+	if err != nil {
+		if line == "" && err == io.EOF {
+			return nil
+		} else if err != io.EOF {
 			vr.verr.Add(err, vr.LineNumber)
 		}
-		return nil
 	}
-	line := vr.scanner.Text()
 
 	vr.LineNumber++
+	if line[len(line)-1] == '\n' {
+		line = line[:len(line)-1]
+	}
 	fields := strings.Split(line, "\t")
 	if len(fields) != 9+len(vr.Header.SampleNames) {
 		vr.verr.Add(errors.New("incorrect number of fields"), vr.LineNumber)

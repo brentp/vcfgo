@@ -7,7 +7,7 @@ import (
 	. "gopkg.in/check.v1"
 )
 
-var cnvStr = `#fileformat=VCFv4.1
+var cnvStr = `##fileformat=VCFv4.1
 ##fileDate=20100501
 ##reference=1000GenomesPilot-NCBI36
 ##assembly=ftp://ftp-trace.ncbi.nih.gov/1000genomes/ftp/release/sv/breakpoint_assemblies.fasta

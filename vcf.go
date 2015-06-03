@@ -36,8 +36,8 @@ func NewVCFError() *VCFError {
 
 // Add adds an error and the line number within the vcf where the error took place.
 func (e *VCFError) Add(err error, line int64) {
-	if e != nil {
-		if ierr := e.Error(); ierr != "" {
+	if err != nil {
+		if ierr := err.Error(); ierr != "" {
 			if len(e.Msgs) == 5000 {
 				// only keep at most 5K errors.
 				m := make([]string, 0, 5000)
