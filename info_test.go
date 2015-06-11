@@ -13,7 +13,7 @@ type InfoSuite struct {
 var _ = Suite(&InfoSuite{})
 
 func (s *InfoSuite) TestInfoGet(c *C) {
-	i := InfoByte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3")
+	i := NewInfoByte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3")
 	c.Assert(string(i.Get("as")), Equals, "22")
 	c.Assert(string(i.Get("asdf")), Equals, "123")
 	c.Assert(string(i.Get("ddd")), Equals, "ddd")

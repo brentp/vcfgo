@@ -2,64 +2,94 @@ package vcfgo
 
 import "bytes"
 
-type InfoByte []byte
-
-func (i *InfoByte) Set(key string, value interface{}) {
-
+type InfoByte struct {
+	info   []byte
+	parsed map[string]interface{}
 }
 
-func (i InfoByte) Get(key string) []byte {
-	var sub []byte
-	if key == "" {
-		return sub
-	}
+func NewInfoByte(info string) InfoByte {
+	return InfoByte{info: []byte(info), parsed: make(map[string]interface{})}
+}
+
+// return the start and end positions of the value.
+// for flag the value is the flag.
+func getpositions(info []byte, key string) (start, end int) {
 	bkey := []byte(key)
 	pos := 0
 	for {
-		ipos := bytes.Index(i[pos:], bkey)
+		ipos := bytes.Index(info[pos:], bkey)
 		if ipos == -1 {
-			return []byte{}
+			return -1, -1
 		}
 		pos += ipos
-		eq := pos + bytes.IndexByte(i[pos:], byte('='))
+		eq := pos + bytes.IndexByte(info[pos:], byte('='))
 		// at end of field and we found an Flag
 		var semi int
 		if eq == -1 {
-			return i[pos:]
+			return pos, len(info)
 		} else if eq-pos != len(bkey) {
 			// found a longer key with same prefix.
-			semi = bytes.IndexByte(i[pos:], byte(';'))
+			semi = bytes.IndexByte(info[pos:], byte(';'))
 			// flag field
 			if semi == -1 {
-				semi = len(i)
+				semi = len(info)
 			} else {
 				semi += pos
 			}
 			if semi-pos == len(bkey) {
-				return i[pos:semi]
+				return pos, semi
 			}
 			pos = semi + 1
 			continue
 		} else {
-			semi = bytes.IndexByte(i[pos:], byte(';'))
+			semi = bytes.IndexByte(info[pos:], byte(';'))
 		}
 		if semi > -1 && eq > pos+semi {
 			// should be a flag.
-			return i[pos : pos+semi]
+			return pos, pos + semi
 		}
 
 		// not at end of info field
 		if semi != -1 {
 			semi += pos
 		} else {
-			semi = len(i)
+			semi = len(info)
 		}
-		sub = i[eq+1 : semi]
-		break
+		return eq + 1, semi
 	}
-	return sub
+}
+
+func (i InfoByte) Contains(key string) bool {
+	// short-circuit common case.
+	if bytes.Contains(i.info, []byte(key+"=")) {
+		return false
+	}
+	s, _ := getpositions(i.info, key)
+	return s == -1
+}
+
+// TODO: attach to header so we can get type.
+func (i InfoByte) Get(key string) []byte {
+	if val, ok := i.parsed[key]; ok {
+		return val.([]byte)
+	}
+	var sub []byte
+	if key == "" {
+		return sub
+	}
+	start, end := getpositions(i.info, key)
+	if start == -1 {
+		return sub
+	}
+	val := i.info[start:end]
+	i.parsed[key] = val
+	return val
 }
 
 func (i InfoByte) String() string {
-	return string(i)
+	return string(i.info)
+}
+
+func (i *InfoByte) Set(key string, value interface{}) {
+
 }
