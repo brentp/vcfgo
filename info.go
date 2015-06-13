@@ -1,6 +1,12 @@
 package vcfgo
 
-import "bytes"
+import (
+	"bytes"
+	"fmt"
+	"log"
+	"strconv"
+	"strings"
+)
 
 type InfoByte struct {
 	info   []byte
@@ -68,6 +74,48 @@ func (i InfoByte) Contains(key string) bool {
 	return s == -1
 }
 
+func ItoS(k string, v interface{}) string {
+	if b, ok := v.(bool); ok && b {
+		return k
+	} else {
+		switch v.(type) {
+		case float32:
+			return fmtFloat32(v.(float32))
+		case float64:
+			return fmtFloat64(v.(float64))
+		case int:
+			return fmt.Sprintf("%d", v.(int))
+		case uint32:
+			return fmt.Sprintf("%d", v.(uint32))
+		case []interface{}:
+			vals := v.([]interface{})
+			svals := make([]string, len(vals))
+			switch vals[0].(type) {
+			case float64:
+				for i, val := range vals {
+					svals[i] = fmtFloat64(val.(float64))
+				}
+			case float32:
+				for i, val := range vals {
+					svals[i] = fmtFloat32(val.(float32))
+				}
+			case int:
+				for i, val := range vals {
+					svals[i] = strconv.Itoa(val.(int))
+				}
+			default:
+				for i, val := range vals {
+					svals[i] = fmt.Sprintf("%v", val)
+				}
+			}
+			return strings.Join(svals, ",")
+
+		default:
+			return v.(string)
+		}
+	}
+}
+
 // TODO: attach to header so we can get type.
 func (i InfoByte) Get(key string) []byte {
 	if val, ok := i.parsed[key]; ok {
@@ -91,5 +139,18 @@ func (i InfoByte) String() string {
 }
 
 func (i *InfoByte) Set(key string, value interface{}) {
-
+	s, e := getpositions(i.info, key)
+	if s == -1 {
+		slug := []byte(fmt.Sprintf(";%s=%s", key, ItoS(key, value)))
+		i.info = append(i.info, slug...)
+		return
+	}
+	slug := []byte(ItoS(key, value))
+	if e == -1 {
+		log.Println(-1, key, value)
+		i.info = append(i.info[:s], slug...)
+		log.Println(i.String())
+	} else {
+		i.info = append(i.info[:s], append(slug, i.info[e:]...)...)
+	}
 }

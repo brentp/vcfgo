@@ -29,3 +29,16 @@ func (s *InfoSuite) TestInfoGet(c *C) {
 	c.Assert(string(i.Get("ddddd")), Equals, "")
 	c.Assert(string(i.Get("FLAG33")), Equals, "")
 }
+
+func (s *InfoSuite) TestInfoSet(c *C) {
+	i := NewInfoByte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3")
+	i.Set("as", "23")
+	c.Assert(string(i.Get("as")), Equals, "23")
+	i.Set("asst", 24)
+	c.Assert(string(i.Get("asst")), Equals, "24")
+	i.Set("t", 33)
+	c.Assert(string(i.Get("t")), Equals, "33")
+	i.Set("t", []interface{}{33, 44, 55, 66})
+	c.Assert(i.String(), Equals, "33,44,55,66")
+	c.Assert(string(i.Get("t")), Equals, "33,44,55,66")
+}
