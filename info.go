@@ -222,12 +222,31 @@ func (i InfoByte) String() string {
 	return string(i.info)
 }
 
+func (i InfoByte) UpdateHeader(key string, value interface{}) {
+	if i.header != nil {
+		switch value.(type) {
+		case bool:
+			i.header.Infos[key] = &Info{Id: key, Description: key, Number: "0", Type: "Flag"}
+		case string:
+			i.header.Infos[key] = &Info{Id: key, Description: key, Number: "1", Type: "Character"}
+		case int, int32, int64, uint32, uint64:
+			i.header.Infos[key] = &Info{Id: key, Description: key, Number: "1", Type: "Integer"}
+		case float32, float64:
+			i.header.Infos[key] = &Info{Id: key, Description: key, Number: "1", Type: "Float"}
+		case []interface{}:
+			v := value.([]interface{})[0]
+			i.UpdateHeader(key, v)
+		}
+	}
+}
+
 func (i *InfoByte) Set(key string, value interface{}) {
 	// TODO: if it's a new key, then we update the header with the type.
 	s, e := getpositions(i.info, key)
 	if s == -1 || s == len(i.info) {
 		slug := []byte(fmt.Sprintf(";%s=%s", key, ItoS(key, value)))
 		i.info = append(i.info, slug...)
+		i.UpdateHeader(key, value)
 		return
 	}
 	slug := []byte(ItoS(key, value))

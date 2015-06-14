@@ -66,14 +66,16 @@ func (s *VariantSuite) TestInfoMap(c *C) {
 	c.Assert(vstr, Equals, "20\t14370\trs6054257\tG\tA\t29.0\tPASS\tNS=3;DP=14;AF=0.5;DB;H2\tGT:GQ:DP:HQ\t0|0:48:1:51,51\t1|0:48:8:51,51\t1/1:43:5:.,.")
 
 	v.Info.Add("asdf", 123)
-	v.Info.Add("float", float32(123.2))
+	v.Info.Add("float", 123.2001)
 	has := v.Info.Contains("asdf")
 	c.Assert(has, Equals, true)
 	val, err := v.Info.Get("float")
-	c.Assert(val, Equals, float32(123.2))
+	vv, ok := val.(float64)
+	c.Assert(ok, Equals, true)
+	c.Assert(vv-123.2001 < 1e-4 || 123.2001-vv < 1e-4, Equals, true)
 	c.Assert(err, IsNil)
 
-	c.Assert(fmt.Sprintf("%s", v.Info), Equals, "NS=3;DP=14;AF=0.5;DB;H2;asdf=123;float=123.2")
+	c.Assert(fmt.Sprintf("%s", v.Info), Equals, "NS=3;DP=14;AF=0.5;DB;H2;asdf=123;float=123.2001")
 
 	rdr.Clear()
 
