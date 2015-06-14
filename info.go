@@ -3,7 +3,6 @@ package vcfgo
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -23,11 +22,18 @@ func getpositions(info []byte, key string) (start, end int) {
 	bkey := []byte(key)
 	pos := 0
 	for {
+		if pos >= len(info) {
+			return -1, -1
+		}
 		ipos := bytes.Index(info[pos:], bkey)
 		if ipos == -1 {
 			return -1, -1
 		}
 		pos += ipos
+		if pos != 0 && info[pos-1] != ';' {
+			pos += 1
+			continue
+		}
 		eq := pos + bytes.IndexByte(info[pos:], byte('='))
 		// at end of field and we found an Flag
 		var semi int
@@ -43,12 +49,12 @@ func getpositions(info []byte, key string) (start, end int) {
 				semi += pos
 			}
 			if semi-pos == len(bkey) {
-				return pos, semi
+				return pos, semi - 1
 			}
 			pos = semi + 1
 			continue
 		} else {
-			semi = bytes.IndexByte(info[pos:], byte(';'))
+			semi = bytes.IndexByte(info[pos+1:], byte(';'))
 		}
 		if semi > -1 && eq > pos+semi {
 			// should be a flag.
@@ -58,8 +64,6 @@ func getpositions(info []byte, key string) (start, end int) {
 		// not at end of info field
 		if semi != -1 {
 			semi += pos
-		} else {
-			semi = len(info)
 		}
 		return eq + 1, semi
 	}
@@ -67,11 +71,11 @@ func getpositions(info []byte, key string) (start, end int) {
 
 func (i InfoByte) Contains(key string) bool {
 	// short-circuit common case.
-	if bytes.Contains(i.info, []byte(key+"=")) {
+	if !bytes.Contains(i.info, []byte(key+"=")) {
 		return false
 	}
 	s, _ := getpositions(i.info, key)
-	return s == -1
+	return s != -1
 }
 
 func ItoS(k string, v interface{}) string {
@@ -118,9 +122,6 @@ func ItoS(k string, v interface{}) string {
 
 // TODO: attach to header so we can get type.
 func (i InfoByte) Get(key string) []byte {
-	if val, ok := i.parsed[key]; ok {
-		return val.([]byte)
-	}
 	var sub []byte
 	if key == "" {
 		return sub
@@ -129,8 +130,10 @@ func (i InfoByte) Get(key string) []byte {
 	if start == -1 {
 		return sub
 	}
-	val := i.info[start:end]
-	i.parsed[key] = val
+	if end == -1 {
+		end = len(i.info) - 1
+	}
+	val := i.info[start : end+1]
 	return val
 }
 
@@ -140,17 +143,15 @@ func (i InfoByte) String() string {
 
 func (i *InfoByte) Set(key string, value interface{}) {
 	s, e := getpositions(i.info, key)
-	if s == -1 {
+	if s == -1 || s == len(i.info) {
 		slug := []byte(fmt.Sprintf(";%s=%s", key, ItoS(key, value)))
 		i.info = append(i.info, slug...)
 		return
 	}
 	slug := []byte(ItoS(key, value))
 	if e == -1 {
-		log.Println(-1, key, value)
 		i.info = append(i.info[:s], slug...)
-		log.Println(i.String())
 	} else {
-		i.info = append(i.info[:s], append(slug, i.info[e:]...)...)
+		i.info = append(i.info[:s], append(slug, i.info[e+1:]...)...)
 	}
 }
