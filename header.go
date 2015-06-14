@@ -293,11 +293,11 @@ func parseOne(key, val, itype string) (interface{}, error) {
 	var v interface{}
 	var err error
 	switch itype {
-	case "Integer":
+	case "Integer", "INTEGER":
 		v, err = strconv.Atoi(val)
-	case "Float":
+	case "Float", "FLOAT":
 		v, err = strconv.ParseFloat(val, 32)
-	case "Flag":
+	case "Flag", "FLAG":
 		if val != "" {
 			err = fmt.Errorf("Info Error: flag field (%s) had value", key)
 		}
