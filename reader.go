@@ -184,7 +184,7 @@ func (vr *Reader) Read() *Variant {
 	}
 	v.LineNumber = vr.LineNumber
 
-	v.Info, err = vr.Header.parseInfo(fields[7])
+	v.Info = NewInfoByte(fields[7], vr.Header)
 	vr.verr.Add(err, vr.LineNumber)
 	return v
 }

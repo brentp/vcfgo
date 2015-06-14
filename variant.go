@@ -4,104 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"sort"
 	"strconv"
 	"strings"
 )
-
-// InfoMap holds the parsed Info field which can contain floats, ints and lists thereof.
-type InfoMap map[string]interface{}
-
-func (i InfoMap) Add(key string, o interface{}) {
-	i[key] = o
-	var order []string
-	if ord, ok := i["__order"]; !ok {
-		order = make([]string, 0)
-		for k := range i {
-			order = append(order, k)
-		}
-	} else {
-		order = ord.([]string)
-	}
-	for i := len(order) - 1; i > -1; i-- {
-		if key == order[i] {
-			return
-		}
-	}
-	i["__order"] = append(order, key)
-}
-
-// String returns a string that matches the original info field.
-func (m InfoMap) String() string {
-	var order []string
-	// use __order internally to keep order of keys.
-	order, ok := m["__order"].([]string)
-	if !ok {
-		order = make([]string, 0)
-		for k := range m {
-			order = append(order, k)
-		}
-		sort.Strings(order)
-	}
-	s := ""
-	for j, k := range order {
-		v := m[k]
-		if b, ok := v.(bool); ok && b {
-			s += k
-		} else {
-			switch v.(type) {
-			case float32:
-				s += k + "=" + fmtFloat32(v.(float32))
-			case float64:
-				s += (k + "=" + fmtFloat64(v.(float64)))
-			case int:
-				s += fmt.Sprintf("%s=%d", k, v.(int))
-			case uint32:
-				s += fmt.Sprintf("%s=%d", k, v.(uint32))
-			case []interface{}:
-				vals := v.([]interface{})
-				svals := make([]string, len(vals))
-				switch vals[0].(type) {
-				case float64:
-					for i, val := range vals {
-						svals[i] = fmtFloat64(val.(float64))
-					}
-				case float32:
-					for i, val := range vals {
-						svals[i] = fmtFloat32(val.(float32))
-					}
-				case int:
-					for i, val := range vals {
-						svals[i] = strconv.Itoa(val.(int))
-					}
-				default:
-					for i, val := range vals {
-						svals[i] = fmt.Sprintf("%v", val)
-					}
-				}
-
-				s += fmt.Sprintf("%s=%s", k, strings.Join(svals, ","))
-			default:
-				s += fmt.Sprintf("%s=%s", k, v.(string))
-			}
-		}
-		if j < len(order)-1 && !strings.HasSuffix(s, ";") {
-			s += ";"
-		}
-	}
-	return s
-}
-
-func (i InfoMap) Keys() []string {
-	if keys, ok := i["__order"]; ok {
-		return keys.([]string)
-	}
-	keys := make([]string, 0)
-	for k := range i {
-		keys = append(keys, k)
-	}
-	return keys
-}
 
 // Variant holds the information about a single site. It is analagous to a row in a VCF file.
 type Variant struct {
@@ -112,7 +17,7 @@ type Variant struct {
 	Alt        []string
 	Quality    float32
 	Filter     string
-	Info       InfoMap
+	Info       InfoByte
 	Format     []string
 	Samples    []*SampleGenotype
 	// if lazy parsing, then just save the sample strings here.
@@ -152,7 +57,7 @@ func (v *Variant) End() uint32 {
 		return uint32(v.Pos-1) + uint32(len(v.Ref))
 	}
 	if strings.HasPrefix(v.Alt[0], "<DEL") || strings.HasPrefix(v.Alt[0], "<DUP") || strings.HasPrefix(v.Alt[0], "<INV") || strings.HasPrefix(v.Alt[0], "<CN") {
-		if svlen, ok := v.Info["SVLEN"]; ok {
+		if svlen, err := v.Info.Get("SVLEN"); err == nil {
 			var slen int
 			switch svlen.(type) {
 			case int:
@@ -169,7 +74,7 @@ func (v *Variant) End() uint32 {
 			}
 			return uint32(int(v.Pos) + slen)
 
-		} else if end, ok := v.Info["END"]; ok {
+		} else if end, err := v.Info.Get("END"); err == nil {
 			return uint32(end.(int))
 		}
 		log.Fatalf("no svlen for variant %s:%d", v.Chromosome, v.Pos)

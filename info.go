@@ -9,11 +9,11 @@ import (
 
 type InfoByte struct {
 	info   []byte
-	parsed map[string]interface{}
+	header *Header
 }
 
-func NewInfoByte(info string) InfoByte {
-	return InfoByte{info: []byte(info), parsed: make(map[string]interface{})}
+func NewInfoByte(info string, h *Header) InfoByte {
+	return InfoByte{info: []byte(info), header: h}
 }
 
 // return the start and end positions of the value.
@@ -78,6 +78,17 @@ func (i InfoByte) Contains(key string) bool {
 	return s != -1
 }
 
+func (i InfoByte) Keys() []string {
+	sp := bytes.Split(i.info, []byte{';'})
+	keys := make([]string, 0, len(sp))
+	for _, pair := range sp {
+		key := bytes.SplitN(pair, []byte{'='}, 2)[0]
+		keys = append(keys, string(key))
+	}
+	return keys
+
+}
+
 func ItoS(k string, v interface{}) string {
 	if b, ok := v.(bool); ok && b {
 		return k
@@ -120,8 +131,7 @@ func ItoS(k string, v interface{}) string {
 	}
 }
 
-// TODO: attach to header so we can get type.
-func (i InfoByte) Get(key string) []byte {
+func (i InfoByte) SGet(key string) []byte {
 	var sub []byte
 	if key == "" {
 		return sub
@@ -137,11 +147,83 @@ func (i InfoByte) Get(key string) []byte {
 	return val
 }
 
+// Get a value from the bytes typed according to the header.
+func (i *InfoByte) Get(key string) (interface{}, error) {
+	v := string(i.SGet(key))
+	skey := string(key)
+	hi, ok := i.header.Infos[key]
+	if !ok {
+		err := fmt.Errorf("Info Error: %s not found in header", skey)
+		// flag
+		if skey == v {
+			return true, err
+		}
+		return v, err
+	}
+
+	if len(v) == 0 {
+		var err error
+		var val interface{} = nil
+		if hi.Type != "Flag" {
+			err = fmt.Errorf("Info Error: %s not found in row", skey)
+		} else {
+			val = false
+		}
+		return val, err
+	}
+	if v == key {
+		var err error
+		if hi.Type != "Flag" {
+			err = fmt.Errorf("Info Error: flag field (%s) should be specified as such in the header", skey)
+		}
+		return true, err
+	}
+
+	var err error
+	var iv interface{}
+
+	switch hi.Number {
+
+	case "0":
+		if hi.Type != "Flag" {
+			err = fmt.Errorf("Info Error: flag field (%s) should have Number=0", skey)
+		}
+		return true, err
+
+	case "1":
+		return parseOne(skey, v, hi.Type)
+
+	case "R", "A", "G", "2", "3", ".":
+		vals := strings.Split(v, ",")
+		var vi interface{} = make([]interface{}, len(vals))
+		for j, val := range vals {
+			iv, err = parseOne(skey, val, hi.Type)
+			vi.([]interface{})[j] = iv
+		}
+		return vi, err
+
+	default:
+		vals := strings.Split(v, ",")
+		var vi interface{} = make([]interface{}, len(vals))
+		if _, err := strconv.Atoi(hi.Number); err == nil {
+			for j, val := range vals {
+				iv, err = parseOne(skey, val, hi.Type)
+				vi.([]interface{})[j] = iv
+			}
+		} else {
+			panic(fmt.Sprintf("found Number=%s", hi.Number))
+		}
+		return vi, err
+
+	}
+}
+
 func (i InfoByte) String() string {
 	return string(i.info)
 }
 
 func (i *InfoByte) Set(key string, value interface{}) {
+	// TODO: if it's a new key, then we update the header with the type.
 	s, e := getpositions(i.info, key)
 	if s == -1 || s == len(i.info) {
 		slug := []byte(fmt.Sprintf(";%s=%s", key, ItoS(key, value)))
@@ -154,4 +236,8 @@ func (i *InfoByte) Set(key string, value interface{}) {
 	} else {
 		i.info = append(i.info[:s], append(slug, i.info[e+1:]...)...)
 	}
+}
+
+func (i *InfoByte) Add(key string, value interface{}) {
+	i.Set(key, value)
 }

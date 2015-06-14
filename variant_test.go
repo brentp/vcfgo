@@ -23,28 +23,28 @@ func (s *VariantSuite) TestVariantGetInt(c *C) {
 	c.Assert(err, IsNil)
 	v := rdr.Read()
 
-	ns, ok := v.Info["NS"]
-	c.Assert(ok, Equals, true)
+	ns, err := v.Info.Get("NS")
+	c.Assert(err, IsNil)
 	c.Assert(ns, Equals, 3)
 
-	dp, ok := v.Info["DP"]
+	dp, err := v.Info.Get("DP")
 	c.Assert(dp, Equals, 14)
-	c.Assert(ok, Equals, true)
+	c.Assert(err, IsNil)
 
-	nsf, ok := v.Info["NS"]
-	c.Assert(ok, Equals, true)
+	nsf, err := v.Info.Get("NS")
+	c.Assert(err, IsNil)
 	c.Assert(nsf, Equals, int(3))
 
-	dpf, ok := v.Info["DP"]
-	c.Assert(ok, Equals, true)
+	dpf, err := v.Info.Get("DP")
+	c.Assert(err, IsNil)
 	c.Assert(dpf, Equals, int(14))
 
-	hqs, ok := v.Info["AF"]
+	hqs, err := v.Info.Get("AF")
 	c.Assert(hqs, DeepEquals, []interface{}{0.5})
-	c.Assert(ok, Equals, true)
+	c.Assert(err, IsNil)
 
-	dpfs, ok := v.Info["DP"]
-	c.Assert(ok, Equals, true)
+	dpfs, err := v.Info.Get("DP")
+	c.Assert(err, IsNil)
 	c.Assert(dpfs, DeepEquals, 14)
 
 }
@@ -67,14 +67,11 @@ func (s *VariantSuite) TestInfoMap(c *C) {
 
 	v.Info.Add("asdf", 123)
 	v.Info.Add("float", float32(123.2))
-	has := false
-	for _, entry := range v.Info["__order"].([]string) {
-		if entry == "asdf" {
-			has = true
-		}
-	}
+	has := v.Info.Contains("asdf")
 	c.Assert(has, Equals, true)
-	c.Assert(v.Info["float"], Equals, float32(123.2))
+	val, err := v.Info.Get("float")
+	c.Assert(val, Equals, float32(123.2))
+	c.Assert(err, IsNil)
 
 	c.Assert(fmt.Sprintf("%s", v.Info), Equals, "NS=3;DP=14;AF=0.5;DB;H2;asdf=123;float=123.2")
 

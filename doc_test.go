@@ -2,8 +2,9 @@ package vcfgo_test
 
 import (
 	"fmt"
-	"github.com/brentp/vcfgo"
 	"os"
+
+	"github.com/brentp/vcfgo"
 )
 
 func Example() {
@@ -18,7 +19,8 @@ func Example() {
 			break
 		}
 		fmt.Printf("%s\t%d\t%s\t%s\n", variant.Chromosome, variant.Pos, variant.Ref, variant.Alt)
-		fmt.Printf("%v", variant.Info["DP"].(int) > 10)
+		dp, _ := variant.Info.Get("DP")
+		fmt.Printf("%v", dp.(int) > 10)
 		// Output: asdf
 	}
 	// Print all accumulated errors to stderr

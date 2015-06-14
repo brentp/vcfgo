@@ -24,15 +24,19 @@ func split(v *Variant, i int, nAlts int) error {
 		case "A":
 			var s interface{}
 			s, err = splitA(v, i, nAlts)
-			v.Info[k] = s
+			v.Info.Set(k, s)
 		case "G":
 			var s []interface{}
-			s, err = splitG(v.Info[k], i, nAlts)
-			v.Info[k] = s
+			var val interface{}
+			val, err = v.Info.Get(k)
+			s, err = splitG(val, i, nAlts)
+			v.Info.Set(k, s)
 		case "R":
 			var s []interface{}
-			s, err = splitR(v.Info[k], i, nAlts)
-			v.Info[k] = s
+			var val interface{}
+			val, err = v.Info.Get(k)
+			s, err = splitR(val, i, nAlts)
+			v.Info.Set(k, s)
 		}
 	}
 	v.Header.ParseSamples(v)
