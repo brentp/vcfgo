@@ -12,8 +12,8 @@ type InfoByte struct {
 	header *Header
 }
 
-func NewInfoByte(info string, h *Header) InfoByte {
-	return InfoByte{info: []byte(info), header: h}
+func NewInfoByte(info string, h *Header) *InfoByte {
+	return &InfoByte{info: []byte(info), header: h}
 }
 
 // return the start and end positions of the value.
@@ -89,6 +89,32 @@ func (i InfoByte) Keys() []string {
 
 }
 
+func (i *InfoByte) Delete(key string) {
+	s, e := getpositions(i.info, key)
+	if s == -1 {
+		return
+	}
+	// check if it's a flag
+	if s != 0 && i.info[s-1] != ';' {
+		s -= (len(key) + 1)
+	}
+	if s < 0 {
+		s = 0
+	}
+	if e == -1 {
+		e = len(i.info)
+	} else {
+		e += 2
+	}
+	if s == 0 && e == len(i.info) {
+		i.info = i.info[:0]
+	} else if e < len(i.info) {
+		i.info = append(i.info[:s], i.info[e:]...)
+	} else {
+		i.info = i.info[:s-1]
+	}
+}
+
 func ItoS(k string, v interface{}) string {
 	if b, ok := v.(bool); ok && b {
 		return k
@@ -148,7 +174,7 @@ func (i InfoByte) SGet(key string) []byte {
 }
 
 // Get a value from the bytes typed according to the header.
-func (i *InfoByte) Get(key string) (interface{}, error) {
+func (i InfoByte) Get(key string) (interface{}, error) {
 	v := string(i.SGet(key))
 	skey := string(key)
 	hi, ok := i.header.Infos[key]
@@ -222,7 +248,7 @@ func (i InfoByte) String() string {
 	return string(i.info)
 }
 
-func (i InfoByte) UpdateHeader(key string, value interface{}) {
+func (i *InfoByte) UpdateHeader(key string, value interface{}) {
 	if i.header != nil {
 		switch value.(type) {
 		case bool:
@@ -241,7 +267,6 @@ func (i InfoByte) UpdateHeader(key string, value interface{}) {
 }
 
 func (i *InfoByte) Set(key string, value interface{}) {
-	// TODO: if it's a new key, then we update the header with the type.
 	s, e := getpositions(i.info, key)
 	if s == -1 || s == len(i.info) {
 		slug := []byte(fmt.Sprintf(";%s=%s", key, ItoS(key, value)))

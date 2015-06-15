@@ -64,3 +64,33 @@ func (s *InfoSuite) TestInfoKeys(c *C) {
 	i := NewInfoByte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3", nil)
 	c.Assert(i.Keys(), DeepEquals, []string{"asdf", "FLAG1", "ddd", "FLAG", "dddd", "as", "FLAG2", "other", "FLAG3"})
 }
+
+func (s *InfoSuite) TestInfoDelete(c *C) {
+	i := NewInfoByte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3", nil)
+	i.Delete("asdf")
+	c.Assert(i.String(), Equals, "FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3")
+	i.Delete("other")
+	c.Assert(i.String(), Equals, "FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;FLAG3")
+
+	i.Delete("FLAG1")
+	c.Assert(i.String(), Equals, "ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;FLAG3")
+
+	i.Delete("FLAG")
+	c.Assert(i.String(), Equals, "ddd=ddd;dddd=dddd;as=22;FLAG2;FLAG3")
+
+	i.Delete("ddd")
+	c.Assert(i.String(), Equals, "dddd=dddd;as=22;FLAG2;FLAG3")
+
+	i.Delete("FLAG3")
+	c.Assert(i.String(), Equals, "dddd=dddd;as=22;FLAG2")
+
+	i.Delete("FLAG2")
+	c.Assert(i.String(), Equals, "dddd=dddd;as=22")
+
+	i.Delete("dddd")
+	c.Assert(i.String(), Equals, "as=22")
+
+	i.Delete("as")
+	c.Assert(i.String(), Equals, "")
+
+}

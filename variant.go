@@ -17,7 +17,7 @@ type Variant struct {
 	Alt        []string
 	Quality    float32
 	Filter     string
-	Info       InfoByte
+	Info       *InfoByte
 	Format     []string
 	Samples    []*SampleGenotype
 	// if lazy parsing, then just save the sample strings here.
