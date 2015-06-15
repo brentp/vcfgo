@@ -159,7 +159,7 @@ func ItoS(k string, v interface{}) string {
 
 func (i InfoByte) SGet(key string) []byte {
 	var sub []byte
-	if key == "" {
+	if key == "" || len(i.info) == 1 {
 		return sub
 	}
 	start, end := getpositions(i.info, key)
@@ -267,6 +267,10 @@ func (i *InfoByte) UpdateHeader(key string, value interface{}) {
 }
 
 func (i *InfoByte) Set(key string, value interface{}) {
+	if len(i.info) == 0 {
+		i.info = []byte(fmt.Sprintf("%s=%s", key, ItoS(key, value)))
+		return
+	}
 	s, e := getpositions(i.info, key)
 	if s == -1 || s == len(i.info) {
 		slug := []byte(fmt.Sprintf(";%s=%s", key, ItoS(key, value)))
