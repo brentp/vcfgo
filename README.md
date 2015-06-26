@@ -171,7 +171,6 @@ type SampleGenotype struct {
 	GL     []float32
 	GQ     int
 	MQ     int
-	// TODO: add methods for Ref, Alt depth.
 	Fields map[string]string
 }
 ```
