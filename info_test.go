@@ -94,3 +94,25 @@ func (s *InfoSuite) TestInfoDelete(c *C) {
 	c.Assert(i.String(), Equals, "")
 
 }
+
+func (s *InfoSuite) TestInfoFlag(c *C) {
+	i := NewInfoByte("AAA;asdf=123;FLAG1;ddd=123", nil)
+	i.Set("ggg", true)
+	c.Assert(i.String(), Equals, "AAA;asdf=123;FLAG1;ddd=123;ggg")
+
+	i.Set("ggg", false)
+	c.Assert(i.String(), Equals, "AAA;asdf=123;FLAG1;ddd=123")
+
+	i.Set("ggg", true)
+	c.Assert(i.String(), Equals, "AAA;asdf=123;FLAG1;ddd=123;ggg")
+
+	i.Set("gga", true)
+	c.Assert(i.String(), Equals, "AAA;asdf=123;FLAG1;ddd=123;ggg;gga")
+
+	i.Set("AAA", true)
+	c.Assert(i.String(), Equals, "AAA;asdf=123;FLAG1;ddd=123;ggg;gga")
+
+	// NOTE: setting to false removes
+	i.Set("AAA", false)
+	c.Assert(i.String(), Equals, "asdf=123;FLAG1;ddd=123;ggg;gga")
+}

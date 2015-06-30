@@ -116,7 +116,7 @@ func (i *InfoByte) Delete(key string) {
 }
 
 func ItoS(k string, v interface{}) string {
-	if b, ok := v.(bool); ok && b {
+	if _, ok := v.(bool); ok {
 		return k
 	} else {
 		switch v.(type) {
@@ -268,14 +268,33 @@ func (i *InfoByte) UpdateHeader(key string, value interface{}) {
 
 func (i *InfoByte) Set(key string, value interface{}) {
 	if len(i.info) == 0 {
-		i.info = []byte(fmt.Sprintf("%s=%s", key, ItoS(key, value)))
+		if v, ok := value.(bool); ok {
+			if v {
+				i.info = []byte(key)
+			}
+		} else {
+			i.info = []byte(fmt.Sprintf("%s=%s", key, ItoS(key, value)))
+		}
 		return
 	}
 	s, e := getpositions(i.info, key)
 	if s == -1 || s == len(i.info) {
+		if b, ok := value.(bool); ok {
+			if b {
+				i.info = append(i.info, ';')
+				i.info = append(i.info, key...)
+			}
+			return
+		}
 		slug := []byte(fmt.Sprintf(";%s=%s", key, ItoS(key, value)))
 		i.info = append(i.info, slug...)
 		i.UpdateHeader(key, value)
+		return
+	}
+	if b, ok := value.(bool); ok {
+		if !b {
+			i.Delete(key)
+		}
 		return
 	}
 	slug := []byte(ItoS(key, value))
