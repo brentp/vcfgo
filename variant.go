@@ -77,7 +77,7 @@ func (v *Variant) End() uint32 {
 		} else if end, err := v.Info.Get("END"); err == nil {
 			return uint32(end.(int))
 		}
-		log.Fatalf("no svlen for variant %s:%d", v.Chromosome, v.Pos)
+		log.Printf("no svlen for variant %s:%d\n%s\nUsing %d", v.Chromosome, v.Pos, v, v.Pos+1)
 	}
 	// <INS and BND's get handled by this.
 	return uint32(v.Pos)

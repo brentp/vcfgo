@@ -1,9 +1,10 @@
 package vcfgo
 
 import (
-	. "gopkg.in/check.v1"
 	"io"
 	"strings"
+
+	. "gopkg.in/check.v1"
 )
 
 type ReaderSuite struct {
@@ -36,7 +37,7 @@ func (s *ReaderSuite) TestReaderHeaderExtras(c *C) {
 	v, err := NewReader(s.reader, true)
 	c.Assert(err, IsNil)
 	c.Assert(len(v.Header.Extras), Equals, 4)
-	c.Assert(v.Header.Extras["phasing"], Equals, "partial")
+	c.Assert(v.Header.Extras[0], Equals, "##fileDate=20090805")
 
 }
 

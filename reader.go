@@ -117,7 +117,7 @@ func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
 			verr.Add(err, LineNumber)
 
 			if kv != nil && len(kv) == 2 {
-				h.Extras[kv[0]] = kv[1]
+				h.Extras = append(h.Extras, line)
 			}
 
 		} else if strings.HasPrefix(line, "#CHROM") {

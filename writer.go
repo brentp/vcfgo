@@ -16,8 +16,8 @@ type Writer struct {
 func NewWriter(w io.Writer, h *Header) (*Writer, error) {
 	fmt.Fprintf(w, "##fileformat=VCFv%s\n", h.FileFormat)
 
-	for k, v := range h.Extras {
-		fmt.Fprintf(w, "##%s=%s\n", k, v)
+	for _, line := range h.Extras {
+		fmt.Fprintf(w, "%s\n", line)
 	}
 
 	for _, imap := range h.Contigs {

@@ -38,7 +38,7 @@ type Header struct {
 	Infos         map[string]*Info
 	SampleFormats map[string]*SampleFormat
 	Filters       map[string]string
-	Extras        map[string]string
+	Extras        []string
 	FileFormat    string
 	// Contigs is a list of maps of length, URL, etc.
 	Contigs []map[string]string
@@ -195,7 +195,7 @@ func NewHeader() *Header {
 	h.SampleNames = make([]string, 0)
 	h.Pedigrees = make([]string, 0)
 	h.Samples = make(map[string]string)
-	h.Extras = make(map[string]string)
+	h.Extras = make([]string, 0)
 	h.Contigs = make([]map[string]string, 0, 64)
 	return &h
 }
