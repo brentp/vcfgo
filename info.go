@@ -236,8 +236,6 @@ func (i InfoByte) Get(key string) (interface{}, error) {
 				iv, err = parseOne(skey, val, hi.Type)
 				vi.([]interface{})[j] = iv
 			}
-		} else {
-			panic(fmt.Sprintf("found Number=%s", hi.Number))
 		}
 		return vi, err
 
