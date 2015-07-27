@@ -93,11 +93,18 @@ func (v *Variant) End() uint32 {
 		return uint32(v.Pos-1) + uint32(len(v.Ref))
 	}
 	if strings.HasPrefix(v.Alt[0], "<DEL") || strings.HasPrefix(v.Alt[0], "<DUP") || strings.HasPrefix(v.Alt[0], "<INV") || strings.HasPrefix(v.Alt[0], "<CN") {
-		if svlen, err := v.Info.Get("SVLEN"); err == nil {
+		if svlen, err := v.Info.Get("SVLEN"); err == nil || strings.Contains(err.Error(), "not found in header") {
 			var slen int
+			err = nil
 			switch svlen.(type) {
 			case int:
 				slen = svlen.(int)
+			case string:
+				var e error
+				slen, e = strconv.Atoi(svlen.(string))
+				if e != nil {
+					log.Fatalf("bad value for svlen: %s\n", svlen)
+				}
 			case []interface{}:
 				slen = svlen.([]interface{})[0].(int)
 			case interface{}:
