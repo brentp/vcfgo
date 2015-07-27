@@ -8,12 +8,12 @@ import (
 )
 
 type InfoByte struct {
-	info   []byte
+	Info   []byte
 	header *Header
 }
 
 func NewInfoByte(info string, h *Header) *InfoByte {
-	return &InfoByte{info: []byte(info), header: h}
+	return &InfoByte{Info: []byte(info), header: h}
 }
 
 // return the start and end positions of the value.
@@ -71,15 +71,15 @@ func getpositions(info []byte, key string) (start, end int) {
 
 func (i InfoByte) Contains(key string) bool {
 	// short-circuit common case.
-	if !bytes.Contains(i.info, []byte(key+"=")) {
+	if !bytes.Contains(i.Info, []byte(key+"=")) {
 		return false
 	}
-	s, _ := getpositions(i.info, key)
+	s, _ := getpositions(i.Info, key)
 	return s != -1
 }
 
 func (i InfoByte) Keys() []string {
-	sp := bytes.Split(i.info, []byte{';'})
+	sp := bytes.Split(i.Info, []byte{';'})
 	keys := make([]string, 0, len(sp))
 	for _, pair := range sp {
 		key := bytes.SplitN(pair, []byte{'='}, 2)[0]
@@ -90,28 +90,28 @@ func (i InfoByte) Keys() []string {
 }
 
 func (i *InfoByte) Delete(key string) {
-	s, e := getpositions(i.info, key)
+	s, e := getpositions(i.Info, key)
 	if s == -1 {
 		return
 	}
 	// check if it's a flag
-	if s != 0 && i.info[s-1] != ';' {
+	if s != 0 && i.Info[s-1] != ';' {
 		s -= (len(key) + 1)
 	}
 	if s < 0 {
 		s = 0
 	}
 	if e == -1 {
-		e = len(i.info)
+		e = len(i.Info)
 	} else {
 		e += 2
 	}
-	if s == 0 && e == len(i.info) {
-		i.info = i.info[:0]
-	} else if e < len(i.info) {
-		i.info = append(i.info[:s], i.info[e:]...)
+	if s == 0 && e == len(i.Info) {
+		i.Info = i.Info[:0]
+	} else if e < len(i.Info) {
+		i.Info = append(i.Info[:s], i.Info[e:]...)
 	} else {
-		i.info = i.info[:s-1]
+		i.Info = i.Info[:s-1]
 	}
 }
 
@@ -159,17 +159,17 @@ func ItoS(k string, v interface{}) string {
 
 func (i InfoByte) SGet(key string) []byte {
 	var sub []byte
-	if key == "" || len(i.info) == 1 {
+	if key == "" || len(i.Info) == 1 {
 		return sub
 	}
-	start, end := getpositions(i.info, key)
+	start, end := getpositions(i.Info, key)
 	if start == -1 {
 		return sub
 	}
 	if end == -1 {
-		end = len(i.info) - 1
+		end = len(i.Info) - 1
 	}
-	val := i.info[start : end+1]
+	val := i.Info[start : end+1]
 	return val
 }
 
@@ -243,7 +243,7 @@ func (i InfoByte) Get(key string) (interface{}, error) {
 }
 
 func (i InfoByte) String() string {
-	return string(i.info)
+	return string(i.Info)
 }
 
 func (i *InfoByte) UpdateHeader(key string, value interface{}) {
@@ -265,27 +265,27 @@ func (i *InfoByte) UpdateHeader(key string, value interface{}) {
 }
 
 func (i *InfoByte) Set(key string, value interface{}) {
-	if len(i.info) == 0 {
+	if len(i.Info) == 0 {
 		if v, ok := value.(bool); ok {
 			if v {
-				i.info = []byte(key)
+				i.Info = []byte(key)
 			}
 		} else {
-			i.info = []byte(fmt.Sprintf("%s=%s", key, ItoS(key, value)))
+			i.Info = []byte(fmt.Sprintf("%s=%s", key, ItoS(key, value)))
 		}
 		return
 	}
-	s, e := getpositions(i.info, key)
-	if s == -1 || s == len(i.info) {
+	s, e := getpositions(i.Info, key)
+	if s == -1 || s == len(i.Info) {
 		if b, ok := value.(bool); ok {
 			if b {
-				i.info = append(i.info, ';')
-				i.info = append(i.info, key...)
+				i.Info = append(i.Info, ';')
+				i.Info = append(i.Info, key...)
 			}
 			return
 		}
 		slug := []byte(fmt.Sprintf(";%s=%s", key, ItoS(key, value)))
-		i.info = append(i.info, slug...)
+		i.Info = append(i.Info, slug...)
 		i.UpdateHeader(key, value)
 		return
 	}
@@ -297,9 +297,9 @@ func (i *InfoByte) Set(key string, value interface{}) {
 	}
 	slug := []byte(ItoS(key, value))
 	if e == -1 {
-		i.info = append(i.info[:s], slug...)
+		i.Info = append(i.Info[:s], slug...)
 	} else {
-		i.info = append(i.info[:s], append(slug, i.info[e+1:]...)...)
+		i.Info = append(i.Info[:s], append(slug, i.Info[e+1:]...)...)
 	}
 }
 
