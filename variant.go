@@ -101,6 +101,9 @@ func (v *Variant) End() uint32 {
 				slen = svlen.(int)
 			case string:
 				var e error
+				if svlen.(string) == "" {
+					return uint32(v.Pos)
+				}
 				slen, e = strconv.Atoi(svlen.(string))
 				if e != nil {
 					log.Fatalf("bad value for svlen: %s\n", svlen)
