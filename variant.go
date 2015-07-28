@@ -54,37 +54,43 @@ func (v *Variant) Start() uint32 {
 // CIPos reports the Left and Right end of an SV using the CIPOS tag. It is in
 // bed format so the end is +1'ed. E.g. If there is not CIPOS, the return value
 // is v.Start(), v.Start() + 1
-func (v *Variant) CIPos() (uint32, uint32) {
+func (v *Variant) CIPos() (uint32, uint32, bool) {
+	if _, ok := v.Header.Infos["CIPOS"]; !ok {
+		v.Header.Infos["CIPOS"] = &Info{Id: "CIPOS", Number: "2", Description: "CIPOS", Type: "Integer"}
+	}
 	s := v.Start()
 	ipair, err := v.Info.Get("CIPOS")
-	if err != nil {
-		return s, s + 1
+	if ipair == nil && err != nil {
+		return s, s + 1, false
 	}
 	pair, ok := ipair.([]interface{})
 	if !ok {
-		return s, s + 1
+		return s, s + 1, false
 	}
 	left := pair[0].(int)
 	right := pair[1].(int)
-	return uint32(int(s) + left), uint32(int(s) + right + 1)
+	return uint32(int(s) + left), uint32(int(s) + right + 1), true
 }
 
 // CIEnd reports the Left and Right end of an SV using the CIEND tag. It is in
 // bed format so the end is +1'ed. E.g. If there is no CIEND, the return value
 // is v.End() - 1, v.End()
-func (v *Variant) CIEnd() (uint32, uint32) {
+func (v *Variant) CIEnd() (uint32, uint32, bool) {
+	if _, ok := v.Header.Infos["CIEND"]; !ok {
+		v.Header.Infos["CIEND"] = &Info{Id: "CIEND", Number: "2", Description: "CIEND", Type: "Integer"}
+	}
 	e := v.End()
 	ipair, err := v.Info.Get("CIEND")
 	if err != nil {
-		return e - 1, e
+		return e - 1, e, false
 	}
 	pair, ok := ipair.([]interface{})
 	if !ok {
-		return e - 1, e
+		return e - 1, e, false
 	}
 	left := pair[0].(int)
 	right := pair[1].(int)
-	return uint32(int(e)+left) - 1, uint32(int(e) + right)
+	return uint32(int(e)+left) - 1, uint32(int(e) + right), true
 }
 
 // End returns the 0-based start + the length of the reference allele.

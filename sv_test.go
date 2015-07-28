@@ -63,13 +63,15 @@ func (s *CNVSuite) TestDupIns(c *C) {
 	v := r.Read()
 	c.Assert(int(v.End()), Equals, 321887)
 
-	left, right := v.CIPos()
+	left, right, ok := v.CIPos()
 	c.Assert(int(left), Equals, 321682-56-1)
 	c.Assert(int(right), Equals, 321682+20)
+	c.Assert(ok, Equals, true)
 
-	eleft, eright := v.CIEnd()
+	eleft, eright, ok := v.CIEnd()
 	c.Assert(int(eleft), Equals, 321887-10-1)
 	c.Assert(int(eright), Equals, 321887+62)
+	c.Assert(ok, Equals, true)
 
 	v = r.Read()
 	c.Assert(int(v.End()), Equals, 14477381)
@@ -93,12 +95,14 @@ func (s *CNVSuite) TestDupIns(c *C) {
 	v = r.Read() // CNV
 	c.Assert(int(v.End()), Equals, 43266825)
 
-	left, right = v.CIPos()
+	left, right, ok = v.CIPos()
 	c.Assert(left, Equals, v.Start())
 	c.Assert(right, Equals, v.Start()+uint32(1))
+	c.Assert(ok, Equals, false)
 
-	eleft, eright = v.CIEnd()
+	eleft, eright, ok = v.CIEnd()
 	c.Assert(eleft, Equals, v.End()-1)
 	c.Assert(right, Equals, v.End())
+	c.Assert(ok, Equals, false)
 
 }
