@@ -55,6 +55,9 @@ func (v *Variant) Start() uint32 {
 // bed format so the end is +1'ed. E.g. If there is not CIPOS, the return value
 // is v.Start(), v.Start() + 1
 func (v *Variant) CIPos() (uint32, uint32, bool) {
+	if v.Header == nil {
+		v.Header = NewHeader()
+	}
 	if _, ok := v.Header.Infos["CIPOS"]; !ok {
 		v.Header.Infos["CIPOS"] = &Info{Id: "CIPOS", Number: "2", Description: "CIPOS", Type: "Integer"}
 	}
@@ -76,6 +79,9 @@ func (v *Variant) CIPos() (uint32, uint32, bool) {
 // bed format so the end is +1'ed. E.g. If there is no CIEND, the return value
 // is v.End() - 1, v.End()
 func (v *Variant) CIEnd() (uint32, uint32, bool) {
+	if v.Header == nil {
+		v.Header = NewHeader()
+	}
 	if _, ok := v.Header.Infos["CIEND"]; !ok {
 		v.Header.Infos["CIEND"] = &Info{Id: "CIEND", Number: "2", Description: "CIEND", Type: "Integer"}
 	}
