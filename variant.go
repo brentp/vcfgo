@@ -132,7 +132,7 @@ func (v *Variant) End() uint32 {
 		log.Printf("no svlen for variant %s:%d\n%s\nUsing %d", v.Chromosome, v.Pos, v, v.Pos+1)
 	}
 	// <INS and BND's get handled by this.
-	return uint32(v.Pos)
+	return uint32(v.Pos-1) + uint32(len(v.Ref))
 }
 
 func fmtFloat32(v float32) string {
