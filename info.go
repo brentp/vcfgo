@@ -34,14 +34,14 @@ func getpositions(info []byte, key string) (start, end int) {
 			pos += 1
 			continue
 		}
-		eq := pos + bytes.IndexByte(info[pos:], byte('='))
+		eq := pos + bytes.IndexByte(info[pos:], '=')
 		// at end of field and we found an Flag
 		var semi int
 		if eq == -1 {
 			return pos, len(info)
 		} else if eq-pos != len(bkey) {
 			// found a longer key with same prefix.
-			semi = bytes.IndexByte(info[pos:], byte(';'))
+			semi = bytes.IndexByte(info[pos:], ';')
 			// flag field
 			if semi == -1 {
 				semi = len(info)
@@ -207,6 +207,9 @@ func (i InfoByte) Get(key string) (interface{}, error) {
 
 	var err error
 	var iv interface{}
+	if hi.Number == "1" || (hi.Number == "." && strings.IndexByte(v, ',') == -1) {
+		return parseOne(skey, v, hi.Type)
+	}
 
 	switch hi.Number {
 
@@ -215,9 +218,6 @@ func (i InfoByte) Get(key string) (interface{}, error) {
 			err = fmt.Errorf("Info Error: flag field (%s) should have Number=0", skey)
 		}
 		return true, err
-
-	case "1":
-		return parseOne(skey, v, hi.Type)
 
 	case "R", "A", "G", "2", "3", ".":
 		vals := strings.Split(v, ",")
