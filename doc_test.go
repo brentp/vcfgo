@@ -14,7 +14,7 @@ func Example() {
 		panic(err)
 	}
 	for {
-		variant := rdr.Read()
+		variant := rdr.Read().(*vcfgo.Variant)
 		if variant == nil {
 			break
 		}

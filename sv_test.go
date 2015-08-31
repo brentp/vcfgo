@@ -1,8 +1,10 @@
-package vcfgo
+package vcfgo_test
 
 import (
 	"io"
 	"strings"
+
+	"github.com/brentp/vcfgo"
 
 	. "gopkg.in/check.v1"
 )
@@ -58,10 +60,11 @@ func (s *CNVSuite) SetUpTest(c *C) {
 }
 
 func (s *CNVSuite) TestDupIns(c *C) {
-	r, err := NewReader(s.reader, false)
+	r, err := vcfgo.NewReader(s.reader, false)
 	c.Assert(err, IsNil)
+	var v *vcfgo.Variant
 
-	v := r.Read()
+	v = r.Read().(*vcfgo.Variant)
 	c.Assert(int(v.End()), Equals, 321887)
 
 	left, right, ok := v.CIPos()
@@ -74,26 +77,26 @@ func (s *CNVSuite) TestDupIns(c *C) {
 	c.Assert(int(eright), Equals, 321887+62)
 	c.Assert(ok, Equals, true)
 
-	v = r.Read()
+	v = r.Read().(*vcfgo.Variant)
 	c.Assert(int(v.End()), Equals, 14477381)
 
-	v = r.Read()
+	v = r.Read().(*vcfgo.Variant)
 	c.Assert(int(v.Start()), Equals, 9425915)
 	c.Assert(int(v.End()), Equals, 9425916)
 
-	v = r.Read()
+	v = r.Read().(*vcfgo.Variant)
 	c.Assert(int(v.End()), Equals, 12686200)
 
-	v = r.Read()
+	v = r.Read().(*vcfgo.Variant)
 	c.Assert(int(v.End()), Equals, 18665204)
 
-	v = r.Read() // INS
+	v = r.Read().(*vcfgo.Variant) // INS
 	c.Assert(int(v.End()), Equals, 18665204)
 
-	v = r.Read() // CNV
+	v = r.Read().(*vcfgo.Variant) // CNV
 	c.Assert(int(v.End()), Equals, 18665204)
 
-	v = r.Read() // CNV
+	v = r.Read().(*vcfgo.Variant) // CNV
 	c.Assert(int(v.End()), Equals, 43266825)
 
 	left, right, ok = v.CIPos()
@@ -106,7 +109,7 @@ func (s *CNVSuite) TestDupIns(c *C) {
 	c.Assert(right, Equals, v.End())
 	c.Assert(ok, Equals, false)
 
-	v = r.Read() // BND
+	v = r.Read().(*vcfgo.Variant) // BND
 	c.Assert(int(v.Start()), Equals, 755891)
 	c.Assert(int(v.End()), Equals, 755891+1)
 

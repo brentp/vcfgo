@@ -27,6 +27,8 @@ import (
 	"io"
 	"strconv"
 	"strings"
+
+	"github.com/brentp/irelate/interfaces"
 )
 
 // used for the quality score which is 0 to 255, but allows "."
@@ -137,7 +139,7 @@ func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
 
 // Read returns a pointer to a Variant. Upon reading the caller is assumed
 // to check Reader.Err()
-func (vr *Reader) Read() *Variant {
+func (vr *Reader) Read() interfaces.IVariant {
 
 	line, err := vr.buf.ReadString('\n')
 	if err != nil {

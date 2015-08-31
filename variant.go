@@ -34,21 +34,6 @@ func (v *Variant) Alt() []string {
 	return v.Alternate
 }
 
-// Is returns true if variants are the same by position and share at least 1 alternate allele.
-func (v *Variant) Is(o *Variant) bool {
-	if v.Pos != o.Pos || v.Chromosome != o.Chromosome || v.Ref() != o.Ref() {
-		return false
-	}
-	for _, av := range v.Alt() {
-		for _, ov := range o.Alt() {
-			if av == ov {
-				return true
-			}
-		}
-	}
-	return false
-}
-
 // Chrom returns the chromosome name.
 func (v *Variant) Chrom() string {
 	return v.Chromosome
