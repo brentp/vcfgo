@@ -23,7 +23,6 @@ package vcfgo
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -153,10 +152,7 @@ func (vr *Reader) Read() *Variant {
 	if line[len(line)-1] == '\n' {
 		line = line[:len(line)-1]
 	}
-	fields := strings.Split(line, "\t")
-	if len(fields) != 9+len(vr.Header.SampleNames) {
-		vr.verr.Add(errors.New("incorrect number of fields"), vr.LineNumber)
-	}
+	fields := strings.SplitN(line, "\t", 10)
 
 	pos, err := strconv.ParseUint(fields[1], 10, 64)
 	vr.verr.Add(err, vr.LineNumber)
@@ -170,17 +166,15 @@ func (vr *Reader) Read() *Variant {
 
 	vr.verr.Add(err, vr.LineNumber)
 
-	v := &Variant{Chromosome: fields[0], Pos: pos, Id: fields[2], Ref: fields[3], Alt: strings.Split(fields[4], ","), Quality: float32(qual),
+	v := &Variant{Chromosome: fields[0], Pos: pos, Id: fields[2], _ref: fields[3], _alt: strings.Split(fields[4], ","), Quality: float32(qual),
 		Filter: fields[6], Header: vr.Header}
+
 	if len(fields) > 8 {
 		v.Format = strings.Split(fields[8], ":")
 		if len(fields) > 9 {
-			v.sampleStrings = fields[9:]
-			if !vr.lazySamples {
-				vr.verr.Add(vr.Header.ParseSamples(v), vr.LineNumber)
-			}
-
+			v.sampleString = fields[9]
 		}
+		vr.Header.ParseSamples(v)
 	}
 	v.LineNumber = vr.LineNumber
 
@@ -191,19 +185,19 @@ func (vr *Reader) Read() *Variant {
 
 // Force parsing of the sample fields.
 func (h *Header) ParseSamples(v *Variant) error {
-	if v.Format == nil || v.sampleStrings == nil || v.Samples != nil {
+	if v.Format == nil || v.sampleString == "" || v.Samples != nil {
 		return nil
 	}
 	var errors []error
 	v.Samples = make([]*SampleGenotype, len(h.SampleNames))
 
-	for i, sample := range v.sampleStrings {
+	for i, sample := range strings.Split(v.sampleString, "\t") {
 		var geno *SampleGenotype
 		geno, errors = h.parseSample(v.Format, sample)
 
 		v.Samples[i] = geno
 	}
-	v.sampleStrings = nil
+	v.sampleString = ""
 	if len(errors) > 0 {
 		return errors[0]
 	}

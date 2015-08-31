@@ -13,26 +13,34 @@ type Variant struct {
 	Chromosome string
 	Pos        uint64
 	Id         string
-	Ref        string
-	Alt        []string
+	_ref       string
+	_alt       []string
 	Quality    float32
 	Filter     string
 	Info       *InfoByte
 	Format     []string
 	Samples    []*SampleGenotype
 	// if lazy parsing, then just save the sample strings here.
-	sampleStrings []string
-	Header        *Header
-	LineNumber    int64
+	sampleString string
+	Header       *Header
+	LineNumber   int64
+}
+
+func (v *Variant) Ref() string {
+	return v._ref
+}
+
+func (v *Variant) Alt() []string {
+	return v._alt
 }
 
 // Is returns true if variants are the same by position and share at least 1 alternate allele.
 func (v *Variant) Is(o *Variant) bool {
-	if v.Pos != o.Pos || v.Chromosome != o.Chromosome || v.Ref != o.Ref {
+	if v.Pos != o.Pos || v.Chromosome != o.Chromosome || v.Ref() != o.Ref() {
 		return false
 	}
-	for _, av := range v.Alt {
-		for _, ov := range o.Alt {
+	for _, av := range v.Alt() {
+		for _, ov := range o.Alt() {
 			if av == ov {
 				return true
 			}
@@ -101,10 +109,10 @@ func (v *Variant) CIEnd() (uint32, uint32, bool) {
 
 // End returns the 0-based start + the length of the reference allele.
 func (v *Variant) End() uint32 {
-	if v.Alt[0][0] != '<' {
-		return uint32(v.Pos-1) + uint32(len(v.Ref))
+	if v.Alt()[0][0] != '<' {
+		return uint32(v.Pos-1) + uint32(len(v.Ref()))
 	}
-	if strings.HasPrefix(v.Alt[0], "<DEL") || strings.HasPrefix(v.Alt[0], "<DUP") || strings.HasPrefix(v.Alt[0], "<INV") || strings.HasPrefix(v.Alt[0], "<CN") {
+	if strings.HasPrefix(v.Alt()[0], "<DEL") || strings.HasPrefix(v.Alt()[0], "<DUP") || strings.HasPrefix(v.Alt()[0], "<INV") || strings.HasPrefix(v.Alt()[0], "<CN") {
 		if svlen, err := v.Info.Get("SVLEN"); err == nil || strings.Contains(err.Error(), "not found in header") {
 			var slen int
 			err = nil
@@ -138,7 +146,7 @@ func (v *Variant) End() uint32 {
 		log.Printf("no svlen for variant %s:%d\n%s\nUsing %d", v.Chromosome, v.Pos, v, v.Pos+1)
 	}
 	// <INS and BND's get handled by this.
-	return uint32(v.Pos-1) + uint32(len(v.Ref))
+	return uint32(v.Pos-1) + uint32(len(v.Ref()))
 }
 
 func fmtFloat32(v float32) string {
@@ -245,15 +253,15 @@ func (v *Variant) String() string {
 	} else {
 		qual = fmt.Sprintf("%.1f", v.Quality)
 	}
-	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s", v.Chromosome, v.Pos, v.Id, v.Ref, strings.Join(v.Alt, ","), qual, v.Filter, v.Info)
+	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s", v.Chromosome, v.Pos, v.Id, v.Ref(), strings.Join(v.Alt(), ","), qual, v.Filter, v.Info)
 	if len(v.Samples) > 0 {
 		samps := make([]string, len(v.Samples))
 		for i, s := range v.Samples {
 			samps[i] = s.String(v.Format)
 		}
 		s += fmt.Sprintf("\t%s\t%s", strings.Join(v.Format, ":"), strings.Join(samps, "\t"))
-	} else if v.sampleStrings != nil && len(v.sampleStrings) != 0 {
-		s += fmt.Sprintf("\t%s\t%s", strings.Join(v.Format, ":"), strings.Join(v.sampleStrings, "\t"))
+	} else if v.sampleString != "" {
+		s += fmt.Sprintf("\t%s\t%s", strings.Join(v.Format, ":"), v.sampleString)
 	}
 	return s
 }
@@ -280,7 +288,7 @@ func (v *Variant) GetGenotypeField(g *SampleGenotype, field string, missing inte
 		if mv, ok = missing.(int); !ok {
 			return nil, fmt.Errorf("GetGenotypeField: bad non-int missing value: %v", missing)
 		}
-		return handleNumberType(format.Number, value, len(v.Alt), len(g.GT), true, mv)
+		return handleNumberType(format.Number, value, len(v.Alt()), len(g.GT), true, mv)
 
 	case "Float":
 		var mv float32
@@ -288,7 +296,7 @@ func (v *Variant) GetGenotypeField(g *SampleGenotype, field string, missing inte
 		if mv, ok = missing.(float32); !ok {
 			return nil, fmt.Errorf("GetGenotypeField: bad non-float missing value: %v", missing)
 		}
-		return handleNumberType(format.Number, value, len(v.Alt), len(g.GT), false, mv)
+		return handleNumberType(format.Number, value, len(v.Alt()), len(g.GT), false, mv)
 
 	case "String", "Character", "Unknown":
 		return value, nil
