@@ -13,8 +13,8 @@ type Variant struct {
 	Chromosome string
 	Pos        uint64
 	Id         string
-	_ref       string
-	_alt       []string
+	Reference  string
+	Alternate  []string
 	Quality    float32
 	Filter     string
 	Info       *InfoByte
@@ -27,11 +27,11 @@ type Variant struct {
 }
 
 func (v *Variant) Ref() string {
-	return v._ref
+	return v.Reference
 }
 
 func (v *Variant) Alt() []string {
-	return v._alt
+	return v.Alternate
 }
 
 // Is returns true if variants are the same by position and share at least 1 alternate allele.

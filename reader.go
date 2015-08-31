@@ -166,7 +166,7 @@ func (vr *Reader) Read() *Variant {
 
 	vr.verr.Add(err, vr.LineNumber)
 
-	v := &Variant{Chromosome: fields[0], Pos: pos, Id: fields[2], _ref: fields[3], _alt: strings.Split(fields[4], ","), Quality: float32(qual),
+	v := &Variant{Chromosome: fields[0], Pos: pos, Id: fields[2], Reference: fields[3], Alternate: strings.Split(fields[4], ","), Quality: float32(qual),
 		Filter: fields[6], Header: vr.Header}
 
 	if len(fields) > 8 {
