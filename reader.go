@@ -180,7 +180,7 @@ func (vr *Reader) Read() interfaces.IVariant {
 	}
 	v.LineNumber = vr.LineNumber
 
-	v.Info = NewInfoByte(fields[7], vr.Header)
+	v.Info_ = NewInfoByte(fields[7], vr.Header)
 	vr.verr.Add(err, vr.LineNumber)
 	return v
 }

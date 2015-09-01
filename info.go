@@ -177,7 +177,13 @@ func (i InfoByte) SGet(key string) []byte {
 func (i InfoByte) Get(key string) (interface{}, error) {
 	v := string(i.SGet(key))
 	skey := string(key)
-	hi, ok := i.header.Infos[key]
+	var ok bool
+	var hi *Info
+	if i.header == nil || i.header.Infos == nil {
+		ok = false
+	} else {
+		hi, ok = i.header.Infos[key]
+	}
 	if !ok {
 		err := fmt.Errorf("Info Error: %s not found in header", skey)
 		// flag
@@ -264,7 +270,7 @@ func (i *InfoByte) UpdateHeader(key string, value interface{}) {
 	}
 }
 
-func (i *InfoByte) Set(key string, value interface{}) {
+func (i *InfoByte) Set(key string, value interface{}) error {
 	if len(i.Info) == 0 {
 		if v, ok := value.(bool); ok {
 			if v {
@@ -273,7 +279,7 @@ func (i *InfoByte) Set(key string, value interface{}) {
 		} else {
 			i.Info = []byte(fmt.Sprintf("%s=%s", key, ItoS(key, value)))
 		}
-		return
+		return nil
 	}
 	s, e := getpositions(i.Info, key)
 	if s == -1 || s == len(i.Info) {
@@ -282,18 +288,18 @@ func (i *InfoByte) Set(key string, value interface{}) {
 				i.Info = append(i.Info, ';')
 				i.Info = append(i.Info, key...)
 			}
-			return
+			return nil
 		}
 		slug := []byte(fmt.Sprintf(";%s=%s", key, ItoS(key, value)))
 		i.Info = append(i.Info, slug...)
 		i.UpdateHeader(key, value)
-		return
+		return nil
 	}
 	if b, ok := value.(bool); ok {
 		if !b {
 			i.Delete(key)
 		}
-		return
+		return nil
 	}
 	slug := []byte(ItoS(key, value))
 	if e == -1 {
@@ -301,6 +307,7 @@ func (i *InfoByte) Set(key string, value interface{}) {
 	} else {
 		i.Info = append(i.Info[:s], append(slug, i.Info[e+1:]...)...)
 	}
+	return nil
 }
 
 func (i *InfoByte) Add(key string, value interface{}) {

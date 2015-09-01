@@ -6,6 +6,8 @@ import (
 	"log"
 	"strconv"
 	"strings"
+
+	"github.com/brentp/irelate/interfaces"
 )
 
 // Variant holds the information about a single site. It is analagous to a row in a VCF file.
@@ -17,13 +19,17 @@ type Variant struct {
 	Alternate  []string
 	Quality    float32
 	Filter     string
-	Info       *InfoByte
+	Info_      interfaces.Info
 	Format     []string
 	Samples    []*SampleGenotype
 	// if lazy parsing, then just save the sample strings here.
 	sampleString string
 	Header       *Header
 	LineNumber   int64
+}
+
+func (v *Variant) Info() interfaces.Info {
+	return v.Info_
 }
 
 func (v *Variant) Ref() string {
@@ -55,7 +61,7 @@ func (v *Variant) CIPos() (uint32, uint32, bool) {
 		v.Header.Infos["CIPOS"] = &Info{Id: "CIPOS", Number: "2", Description: "CIPOS", Type: "Integer"}
 	}
 	s := v.Start()
-	ipair, err := v.Info.Get("CIPOS")
+	ipair, err := v.Info().Get("CIPOS")
 	if ipair == nil && err != nil {
 		return s, s + 1, false
 	}
@@ -79,8 +85,8 @@ func (v *Variant) CIEnd() (uint32, uint32, bool) {
 		v.Header.Infos["CIEND"] = &Info{Id: "CIEND", Number: "2", Description: "CIEND", Type: "Integer"}
 	}
 	e := v.End()
-	ipair, err := v.Info.Get("CIEND")
-	if err != nil {
+	ipair, err := v.Info().Get("CIEND")
+	if ipair == nil && err != nil {
 		return e - 1, e, false
 	}
 	pair, ok := ipair.([]interface{})
@@ -98,7 +104,7 @@ func (v *Variant) End() uint32 {
 		return uint32(v.Pos-1) + uint32(len(v.Ref()))
 	}
 	if strings.HasPrefix(v.Alt()[0], "<DEL") || strings.HasPrefix(v.Alt()[0], "<DUP") || strings.HasPrefix(v.Alt()[0], "<INV") || strings.HasPrefix(v.Alt()[0], "<CN") {
-		if svlen, err := v.Info.Get("SVLEN"); err == nil || strings.Contains(err.Error(), "not found in header") {
+		if svlen, err := v.Info().Get("SVLEN"); err == nil || strings.Contains(err.Error(), "not found in header") {
 			var slen int
 			err = nil
 			switch svlen.(type) {
@@ -125,7 +131,7 @@ func (v *Variant) End() uint32 {
 			}
 			return uint32(int(v.Pos) + slen)
 
-		} else if end, err := v.Info.Get("END"); err == nil {
+		} else if end, err := v.Info().Get("END"); err == nil {
 			return uint32(end.(int))
 		}
 		log.Printf("no svlen for variant %s:%d\n%s\nUsing %d", v.Chromosome, v.Pos, v, v.Pos+1)
@@ -238,7 +244,7 @@ func (v *Variant) String() string {
 	} else {
 		qual = fmt.Sprintf("%.1f", v.Quality)
 	}
-	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s", v.Chromosome, v.Pos, v.Id, v.Ref(), strings.Join(v.Alt(), ","), qual, v.Filter, v.Info)
+	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s", v.Chromosome, v.Pos, v.Id, v.Ref(), strings.Join(v.Alt(), ","), qual, v.Filter, v.Info_)
 	if len(v.Samples) > 0 {
 		samps := make([]string, len(v.Samples))
 		for i, s := range v.Samples {

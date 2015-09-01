@@ -7,7 +7,7 @@ func SplitAlts(v *Variant) []*Variant {
 	for i := range v.Alt() {
 		vars[i] = &Variant{Chromosome: v.Chromosome, Pos: v.Pos, Id: v.Id,
 			Reference: v.Ref(), Alternate: []string{v.Alt()[i]}, Quality: v.Quality, Filter: v.Filter,
-			Info: v.Info, Samples: v.Samples, sampleString: v.sampleString,
+			Info_: v.Info_, Samples: v.Samples, sampleString: v.sampleString,
 			Header: v.Header, LineNumber: v.LineNumber}
 
 		split(vars[i], i, len(v.Alt()))
@@ -18,25 +18,25 @@ func SplitAlts(v *Variant) []*Variant {
 func split(v *Variant, i int, nAlts int) error {
 	// extract the appropriate
 	var err error
-	for _, k := range v.Info.Keys() {
+	for _, k := range v.Info_.Keys() {
 		h := v.Header.Infos[k]
 		switch h.Number {
 		case "A":
 			var s interface{}
 			s, err = splitA(v, i, nAlts)
-			v.Info.Set(k, s)
+			v.Info_.Set(k, s)
 		case "G":
 			var s []interface{}
 			var val interface{}
-			val, err = v.Info.Get(k)
+			val, err = v.Info_.Get(k)
 			s, err = splitG(val, i, nAlts)
-			v.Info.Set(k, s)
+			v.Info_.Set(k, s)
 		case "R":
 			var s []interface{}
 			var val interface{}
-			val, err = v.Info.Get(k)
+			val, err = v.Info_.Get(k)
 			s, err = splitR(val, i, nAlts)
-			v.Info.Set(k, s)
+			v.Info_.Set(k, s)
 		}
 	}
 	v.Header.ParseSamples(v)

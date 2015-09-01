@@ -46,7 +46,7 @@ func (s *RegressionSuite) TestRegr1(c *C) {
 	rdr, err := vcfgo.NewReader(s.reader, false)
 	c.Assert(err, IsNil)
 	v := rdr.Read().(*vcfgo.Variant)
-	snp, err := v.Info.Get("TYPE")
+	snp, err := v.Info().Get("TYPE")
 	c.Assert(err, IsNil)
 	c.Assert(snp, DeepEquals, []interface{}{"snp"})
 
