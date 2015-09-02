@@ -5,7 +5,7 @@ import "fmt"
 func SplitAlts(v *Variant) []*Variant {
 	vars := make([]*Variant, len(v.Alt()))
 	for i := range v.Alt() {
-		vars[i] = &Variant{Chromosome: v.Chromosome, Pos: v.Pos, Id: v.Id,
+		vars[i] = &Variant{Chromosome: v.Chromosome, Pos: v.Pos, Id_: v.Id_,
 			Reference: v.Ref(), Alternate: []string{v.Alt()[i]}, Quality: v.Quality, Filter: v.Filter,
 			Info_: v.Info_, Samples: v.Samples, sampleString: v.sampleString,
 			Header: v.Header, LineNumber: v.LineNumber}

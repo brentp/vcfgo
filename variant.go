@@ -14,7 +14,7 @@ import (
 type Variant struct {
 	Chromosome string
 	Pos        uint64
-	Id         string
+	Id_        string
 	Reference  string
 	Alternate  []string
 	Quality    float32
@@ -30,6 +30,10 @@ type Variant struct {
 
 func (v *Variant) Info() interfaces.Info {
 	return v.Info_
+}
+
+func (v *Variant) Id() string {
+	return v.Id_
 }
 
 func (v *Variant) Ref() string {
@@ -244,7 +248,7 @@ func (v *Variant) String() string {
 	} else {
 		qual = fmt.Sprintf("%.1f", v.Quality)
 	}
-	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s", v.Chromosome, v.Pos, v.Id, v.Ref(), strings.Join(v.Alt(), ","), qual, v.Filter, v.Info_)
+	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s", v.Chromosome, v.Pos, v.Id_, v.Ref(), strings.Join(v.Alt(), ","), qual, v.Filter, v.Info_)
 	if len(v.Samples) > 0 {
 		samps := make([]string, len(v.Samples))
 		for i, s := range v.Samples {
