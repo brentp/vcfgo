@@ -3,6 +3,7 @@ package vcfgo
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -128,26 +129,32 @@ func ItoS(k string, v interface{}) string {
 			return fmt.Sprintf("%d", v.(int))
 		case uint32:
 			return fmt.Sprintf("%d", v.(uint32))
-		case []interface{}:
-			vals := v.([]interface{})
+		case []float64:
+			vals := v.([]float64)
 			svals := make([]string, len(vals))
-			switch vals[0].(type) {
-			case float64:
-				for i, val := range vals {
-					svals[i] = fmtFloat64(val.(float64))
-				}
-			case float32:
-				for i, val := range vals {
-					svals[i] = fmtFloat32(val.(float32))
-				}
-			case int:
-				for i, val := range vals {
-					svals[i] = strconv.Itoa(val.(int))
-				}
-			default:
-				for i, val := range vals {
-					svals[i] = fmt.Sprintf("%v", val)
-				}
+			for i, val := range vals {
+				svals[i] = fmtFloat64(float64(val))
+			}
+			return strings.Join(svals, ",")
+		case []float32:
+			vals := v.([]float32)
+			svals := make([]string, len(vals))
+			for i, val := range vals {
+				svals[i] = fmtFloat32(float32(val))
+			}
+			return strings.Join(svals, ",")
+		case []int:
+			vals := v.([]int)
+			svals := make([]string, len(vals))
+			for i, val := range vals {
+				svals[i] = strconv.Itoa(int(val))
+			}
+			return strings.Join(svals, ",")
+		case []int32:
+			vals := v.([]int32)
+			svals := make([]string, len(vals))
+			for i, val := range vals {
+				svals[i] = strconv.Itoa(int(int32(val)))
 			}
 			return strings.Join(svals, ",")
 
@@ -227,12 +234,40 @@ func (i InfoByte) Get(key string) (interface{}, error) {
 
 	case "R", "A", "G", "2", "3", ".":
 		vals := strings.Split(v, ",")
-		var vi interface{} = make([]interface{}, len(vals))
-		for j, val := range vals {
-			iv, err = parseOne(skey, val, hi.Type)
-			vi.([]interface{})[j] = iv
+		var vi interface{}
+		switch hi.Type {
+		case "Integer":
+			vi = make([]int, len(vals))
+			for j, val := range vals {
+				iv, err = parseOne(skey, val, hi.Type)
+				vi.([]int)[j] = iv.(int)
+			}
+		case "Float":
+			vi = make([]float32, len(vals))
+			for j, val := range vals {
+				iv, err = parseOne(skey, val, hi.Type)
+				if o, ok := iv.(float32); ok {
+					vi.([]float32)[j] = o
+				} else {
+					vi.([]float32)[j] = float32(iv.(float64))
+				}
+
+			}
+			log.Println(vi)
+		case "String":
+			vi = make([]string, len(vals))
+			for j, val := range vals {
+				iv, err = parseOne(skey, val, hi.Type)
+				vi.([]string)[j] = iv.(string)
+			}
+		default:
+			vi = make([]interface{}, len(vals))
+			for j, val := range vals {
+				iv, err = parseOne(skey, val, hi.Type)
+				vi.([]interface{})[j] = iv
+			}
 		}
-		return vi, err
+		return vi, nil
 
 	default:
 		vals := strings.Split(v, ",")
