@@ -45,6 +45,12 @@ type Reader struct {
 	r           io.Reader
 }
 
+func NewWithHeader(r io.Reader, h *Header, lazySamples bool) (*Reader, error) {
+	buf := bufio.NewReaderSize(r, 32768*2)
+	var verr = NewVCFError()
+	return &Reader{buf, h, verr, 1, lazySamples, r}, nil
+}
+
 // NewReader returns a Reader.
 // If lazySamples is true, then the user will have to call Reader.ParseSamples()
 // in order to access simple info.
