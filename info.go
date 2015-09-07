@@ -3,7 +3,6 @@ package vcfgo
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -253,7 +252,6 @@ func (i InfoByte) Get(key string) (interface{}, error) {
 				}
 
 			}
-			log.Println(vi)
 		case "String":
 			vi = make([]string, len(vals))
 			for j, val := range vals {
