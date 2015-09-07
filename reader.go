@@ -49,7 +49,7 @@ type Reader struct {
 // If lazySamples is true, then the user will have to call Reader.ParseSamples()
 // in order to access simple info.
 func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
-	buffered := bufio.NewReaderSize(r, 32768*16)
+	buffered := bufio.NewReaderSize(r, 32768*2)
 
 	var verr = NewVCFError()
 
@@ -204,6 +204,12 @@ func (h *Header) ParseSamples(v *Variant) error {
 		return errors[0]
 	}
 	return nil
+}
+
+// Add a INFO field to the header.
+func (vr *Reader) AddInfoToHeader(id string, num string, stype string, desc string) {
+	h := vr.Header
+	h.Infos[id] = &Info{Id: id, Number: num, Type: stype, Description: desc}
 }
 
 // Error() aggregates the multiple errors that can occur into a single object.
