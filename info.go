@@ -156,6 +156,8 @@ func ItoS(k string, v interface{}) string {
 				svals[i] = strconv.Itoa(int(int32(val)))
 			}
 			return strings.Join(svals, ",")
+		case []string:
+			return strings.Join(v.([]string), ",")
 
 		default:
 			return v.(string)

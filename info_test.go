@@ -41,7 +41,7 @@ func (s *InfoSuite) TestInfoSet(c *C) {
 	i.Set("t", 33)
 	a := string(i.SGet("t"))
 	c.Assert(a, Equals, "33")
-	i.Set("t", []interface{}{93, 44, 55, 66})
+	i.Set("t", []int{93, 44, 55, 66})
 	c.Assert(string(i.SGet("t")), Equals, "93,44,55,66")
 	i.Set("tt", "asdf")
 	c.Assert(string(i.SGet("t")), Equals, "93,44,55,66")

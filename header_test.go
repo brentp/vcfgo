@@ -2,7 +2,6 @@ package vcfgo_test
 
 import (
 	"io"
-	"log"
 	"strings"
 
 	"github.com/brentp/irelate/interfaces"
@@ -124,7 +123,6 @@ func (s *HeaderSuite) TestSamples(c *C) {
 		c.Assert(v.Chromosome, Equals, "20")
 		lastV = v
 	}
-	log.Println(lastV)
 	c.Assert(int(lastV.Pos), Equals, int(1234567))
 	c.Assert(lastV.Filter, Equals, "PASS")
 }

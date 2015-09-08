@@ -48,7 +48,7 @@ func (s *RegressionSuite) TestRegr1(c *C) {
 	v := rdr.Read().(*vcfgo.Variant)
 	snp, err := v.Info().Get("TYPE")
 	c.Assert(err, IsNil)
-	c.Assert(snp, DeepEquals, []interface{}{"snp"})
+	c.Assert(snp, DeepEquals, []string{"snp"})
 
 	str := fmt.Sprintf("%s", v)
 	c.Assert(str, Equals, "1\t98683\t.\tG\tA\t610.5\t.\tAB=0.282443;ABP=56.8661;AC=11;AF=0.34375;AN=32;AO=45;CIGAR=1X;TYPE=snp;XX=0.44,0.88")

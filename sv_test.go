@@ -68,14 +68,14 @@ func (s *CNVSuite) TestDupIns(c *C) {
 	c.Assert(int(v.End()), Equals, 321887)
 
 	left, right, ok := v.CIPos()
+	c.Assert(ok, Equals, true)
 	c.Assert(int(left), Equals, 321682-56-1)
 	c.Assert(int(right), Equals, 321682+20)
-	c.Assert(ok, Equals, true)
 
 	eleft, eright, ok := v.CIEnd()
+	c.Assert(ok, Equals, true)
 	c.Assert(int(eleft), Equals, 321887-10-1)
 	c.Assert(int(eright), Equals, 321887+62)
-	c.Assert(ok, Equals, true)
 
 	v = r.Read().(*vcfgo.Variant)
 	c.Assert(int(v.End()), Equals, 14477381)

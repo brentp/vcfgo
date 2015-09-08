@@ -69,12 +69,12 @@ func (v *Variant) CIPos() (uint32, uint32, bool) {
 	if ipair == nil && err != nil {
 		return s, s + 1, false
 	}
-	pair, ok := ipair.([]interface{})
+	pair, ok := ipair.([]int)
 	if !ok {
 		return s, s + 1, false
 	}
-	left := pair[0].(int)
-	right := pair[1].(int)
+	left := pair[0]
+	right := pair[1]
 	return uint32(int(s) + left), uint32(int(s) + right + 1), true
 }
 
@@ -93,12 +93,12 @@ func (v *Variant) CIEnd() (uint32, uint32, bool) {
 	if ipair == nil && err != nil {
 		return e - 1, e, false
 	}
-	pair, ok := ipair.([]interface{})
+	pair, ok := ipair.([]int)
 	if !ok {
 		return e - 1, e, false
 	}
-	left := pair[0].(int)
-	right := pair[1].(int)
+	left := pair[0]
+	right := pair[1]
 	return uint32(int(e)+left) - 1, uint32(int(e) + right), true
 }
 

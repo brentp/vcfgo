@@ -42,7 +42,7 @@ func (s *VariantSuite) TestVariantGetInt(c *C) {
 	c.Assert(dpf, Equals, int(14))
 
 	hqs, err := v.Info_.Get("AF")
-	c.Assert(hqs, DeepEquals, []interface{}{0.5})
+	c.Assert(hqs, DeepEquals, []float32{0.5})
 	c.Assert(err, IsNil)
 
 	dpfs, err := v.Info_.Get("DP")
