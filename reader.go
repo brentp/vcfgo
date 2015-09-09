@@ -162,6 +162,11 @@ func (vr *Reader) Read() interfaces.IVariant {
 	}
 	fields := strings.SplitN(line, "\t", 10)
 
+	return vr.Parse(fields)
+}
+
+func (vr *Reader) Parse(fields []string) interfaces.IVariant {
+
 	pos, err := strconv.ParseUint(fields[1], 10, 64)
 	vr.verr.Add(err, vr.LineNumber)
 
