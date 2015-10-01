@@ -46,7 +46,7 @@ type Reader struct {
 }
 
 func NewWithHeader(r io.Reader, h *Header, lazySamples bool) (*Reader, error) {
-	buf := bufio.NewReaderSize(r, 32768*2)
+	buf := bufio.NewReaderSize(r, 32768/8)
 	var verr = NewVCFError()
 	return &Reader{buf, h, verr, 1, lazySamples, r}, nil
 }
@@ -55,7 +55,7 @@ func NewWithHeader(r io.Reader, h *Header, lazySamples bool) (*Reader, error) {
 // If lazySamples is true, then the user will have to call Reader.ParseSamples()
 // in order to access simple info.
 func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
-	buffered := bufio.NewReaderSize(r, 32768*2)
+	buffered := bufio.NewReaderSize(r, 32768/8)
 
 	var verr = NewVCFError()
 
@@ -187,11 +187,14 @@ func (vr *Reader) Parse(fields []string) interfaces.IVariant {
 		if len(fields) > 9 {
 			v.sampleString = fields[9]
 		}
-		vr.Header.ParseSamples(v)
+		if !vr.lazySamples {
+			vr.Header.ParseSamples(v)
+		}
 	}
 	v.LineNumber = vr.LineNumber
 
-	v.Info_ = NewInfoByte(fields[7], vr.Header)
+	v.Info_ = nil //NewInfoByte(fields[7], vr.Header)
+	v.infoString = fields[7]
 	vr.verr.Add(err, vr.LineNumber)
 	return v
 }

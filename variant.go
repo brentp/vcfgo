@@ -19,6 +19,7 @@ type Variant struct {
 	Alternate  []string
 	Quality    float32
 	Filter     string
+	infoString string
 	Info_      interfaces.Info
 	Format     []string
 	Samples    []*SampleGenotype
@@ -29,6 +30,9 @@ type Variant struct {
 }
 
 func (v *Variant) Info() interfaces.Info {
+	if v.Info_ == nil {
+		v.Info_ = NewInfoByte(v.infoString, v.Header)
+	}
 	return v.Info_
 }
 
@@ -248,7 +252,7 @@ func (v *Variant) String() string {
 	} else {
 		qual = fmt.Sprintf("%.1f", v.Quality)
 	}
-	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s", v.Chromosome, v.Pos, v.Id_, v.Ref(), strings.Join(v.Alt(), ","), qual, v.Filter, v.Info_)
+	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s", v.Chromosome, v.Pos, v.Id_, v.Ref(), strings.Join(v.Alt(), ","), qual, v.Filter, v.Info())
 	if len(v.Samples) > 0 {
 		samps := make([]string, len(v.Samples))
 		for i, s := range v.Samples {

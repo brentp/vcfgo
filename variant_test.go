@@ -24,6 +24,7 @@ func (s *VariantSuite) TestVariantGetInt(c *C) {
 	rdr, err := vcfgo.NewReader(s.reader, true)
 	c.Assert(err, IsNil)
 	v := rdr.Read().(*vcfgo.Variant)
+	v.Info()
 
 	ns, err := v.Info_.Get("NS")
 	c.Assert(err, IsNil)
@@ -55,7 +56,7 @@ func (s *VariantSuite) TestInfoField(c *C) {
 	rdr, err := vcfgo.NewReader(s.reader, false)
 	c.Assert(err, IsNil)
 	v := rdr.Read().(*vcfgo.Variant)
-	vstr := fmt.Sprintf("%s", v.Info_)
+	vstr := fmt.Sprintf("%s", v.Info())
 	c.Assert(vstr, Equals, "NS=3;DP=14;AF=0.5;DB;H2")
 }
 
