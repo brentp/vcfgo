@@ -243,3 +243,10 @@ func (vr *Reader) Error() error {
 func (vr *Reader) Clear() {
 	vr.verr.Clear()
 }
+
+func (vr *Reader) Close() error {
+	if rc, ok := vr.r.(io.ReadCloser); ok {
+		return rc.Close()
+	}
+	return nil
+}
