@@ -48,7 +48,7 @@ type Reader struct {
 }
 
 func NewWithHeader(r io.Reader, h *Header, lazySamples bool) (*Reader, error) {
-	buf := bufio.NewReaderSize(r, 32768/8)
+	buf := bufio.NewReaderSize(r, 32768*2)
 	var verr = NewVCFError()
 	return &Reader{buf, h, verr, 1, lazySamples, r}, nil
 }
@@ -57,7 +57,7 @@ func NewWithHeader(r io.Reader, h *Header, lazySamples bool) (*Reader, error) {
 // If lazySamples is true, then the user will have to call Reader.ParseSamples()
 // in order to access simple info.
 func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
-	buffered := bufio.NewReaderSize(r, 32768/8)
+	buffered := bufio.NewReaderSize(r, 32768*2)
 
 	var verr = NewVCFError()
 
