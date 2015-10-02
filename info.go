@@ -12,8 +12,8 @@ type InfoByte struct {
 	header *Header
 }
 
-func NewInfoByte(info string, h *Header) *InfoByte {
-	return &InfoByte{Info: []byte(info), header: h}
+func NewInfoByte(info []byte, h *Header) *InfoByte {
+	return &InfoByte{Info: info, header: h}
 }
 
 // return the start and end positions of the value.
@@ -285,6 +285,10 @@ func (i InfoByte) Get(key string) (interface{}, error) {
 
 func (i InfoByte) String() string {
 	return string(i.Info)
+}
+
+func (i InfoByte) Bytes() []byte {
+	return i.Info
 }
 
 func (i *InfoByte) UpdateHeader(key string, value interface{}) {

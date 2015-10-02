@@ -19,7 +19,6 @@ type Variant struct {
 	Alternate  []string
 	Quality    float32
 	Filter     string
-	infoString string
 	Info_      interfaces.Info
 	Format     []string
 	Samples    []*SampleGenotype
@@ -30,9 +29,6 @@ type Variant struct {
 }
 
 func (v *Variant) Info() interfaces.Info {
-	if v.Info_ == nil {
-		v.Info_ = NewInfoByte(v.infoString, v.Header)
-	}
 	return v.Info_
 }
 

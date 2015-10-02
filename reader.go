@@ -23,10 +23,12 @@ package vcfgo
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"strconv"
 	"strings"
+	"unsafe"
 
 	"github.com/brentp/irelate/interfaces"
 )
@@ -65,7 +67,7 @@ func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
 	for {
 
 		LineNumber++
-		line, err := buffered.ReadString(byte('\n'))
+		line, err := buffered.ReadString('\n')
 		if err != nil && err != io.EOF {
 			verr.Add(err, LineNumber)
 		}
@@ -147,9 +149,9 @@ func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
 // to check Reader.Err()
 func (vr *Reader) Read() interfaces.IVariant {
 
-	line, err := vr.buf.ReadString('\n')
+	line, err := vr.buf.ReadBytes('\n')
 	if err != nil {
-		if line == "" && err == io.EOF {
+		if len(line) == 0 && err == io.EOF {
 			return nil
 		} else if err != io.EOF {
 			vr.verr.Add(err, vr.LineNumber)
@@ -160,32 +162,36 @@ func (vr *Reader) Read() interfaces.IVariant {
 	if line[len(line)-1] == '\n' {
 		line = line[:len(line)-1]
 	}
-	fields := strings.SplitN(line, "\t", 10)
+	fields := bytes.SplitN(line, []byte{'\t'}, 10)
 
 	return vr.Parse(fields)
 }
 
-func (vr *Reader) Parse(fields []string) interfaces.IVariant {
+func unsafeString(b []byte) string {
+	return *(*string)(unsafe.Pointer(&b))
+}
 
-	pos, err := strconv.ParseUint(fields[1], 10, 64)
+func (vr *Reader) Parse(fields [][]byte) interfaces.IVariant {
+
+	pos, err := strconv.ParseUint(unsafeString(fields[1]), 10, 64)
 	vr.verr.Add(err, vr.LineNumber)
 
 	var qual float64
-	if fields[5] == "." {
+	if len(fields[5]) == 1 && fields[5][0] == '.' {
 		qual = MISSING_VAL
 	} else {
-		qual, err = strconv.ParseFloat(fields[5], 32)
+		qual, err = strconv.ParseFloat(unsafeString(fields[5]), 32)
 	}
 
 	vr.verr.Add(err, vr.LineNumber)
 
-	v := &Variant{Chromosome: fields[0], Pos: pos, Id_: fields[2], Reference: fields[3], Alternate: strings.Split(fields[4], ","), Quality: float32(qual),
-		Filter: fields[6], Header: vr.Header}
+	v := &Variant{Chromosome: string(fields[0]), Pos: pos, Id_: string(fields[2]), Reference: string(fields[3]), Alternate: strings.Split(string(fields[4]), ","), Quality: float32(qual),
+		Filter: string(fields[6]), Header: vr.Header}
 
 	if len(fields) > 8 {
-		v.Format = strings.Split(fields[8], ":")
+		v.Format = strings.Split(string(fields[8]), ":")
 		if len(fields) > 9 {
-			v.sampleString = fields[9]
+			v.sampleString = string(fields[9])
 		}
 		if !vr.lazySamples {
 			vr.Header.ParseSamples(v)
@@ -193,8 +199,7 @@ func (vr *Reader) Parse(fields []string) interfaces.IVariant {
 	}
 	v.LineNumber = vr.LineNumber
 
-	v.Info_ = nil //NewInfoByte(fields[7], vr.Header)
-	v.infoString = fields[7]
+	v.Info_ = NewInfoByte(fields[7], vr.Header)
 	vr.verr.Add(err, vr.LineNumber)
 	return v
 }
