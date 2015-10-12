@@ -331,7 +331,7 @@ func (i *InfoByte) Set(key string, value interface{}) error {
 		}
 		slug := []byte(fmt.Sprintf(";%s=%s", key, ItoS(key, value)))
 		i.Info = append(i.Info, slug...)
-		i.UpdateHeader(key, value)
+		//i.UpdateHeader(key, value)
 		return nil
 	}
 	if b, ok := value.(bool); ok {
