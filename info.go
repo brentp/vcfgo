@@ -8,7 +8,8 @@ import (
 )
 
 type InfoByte struct {
-	Info   []byte
+	Info []byte
+
 	header *Header
 }
 
@@ -190,7 +191,9 @@ func (i InfoByte) Get(key string) (interface{}, error) {
 	if i.header == nil || i.header.Infos == nil {
 		ok = false
 	} else {
+		i.header.RLock()
 		hi, ok = i.header.Infos[key]
+		i.header.RUnlock()
 	}
 	if !ok {
 		err := fmt.Errorf("Info Error: %s not found in header", skey)
@@ -292,6 +295,8 @@ func (i InfoByte) Bytes() []byte {
 }
 
 func (i *InfoByte) UpdateHeader(key string, value interface{}) {
+	i.header.Lock()
+	defer i.header.Unlock()
 	if i.header != nil {
 		switch value.(type) {
 		case bool:

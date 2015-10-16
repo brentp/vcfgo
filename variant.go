@@ -86,7 +86,9 @@ func (v *Variant) CIEnd() (uint32, uint32, bool) {
 		v.Header = NewHeader()
 	}
 	if _, ok := v.Header.Infos["CIEND"]; !ok {
+		v.Header.Lock()
 		v.Header.Infos["CIEND"] = &Info{Id: "CIEND", Number: "2", Description: "CIEND", Type: "Integer"}
+		v.Header.Unlock()
 	}
 	e := v.End()
 	ipair, err := v.Info().Get("CIEND")

@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 var typeRe = `String|Integer|Float|Flag|Character|Unknown`
@@ -34,6 +35,8 @@ type SampleFormat Info
 
 // Header holds all the type and format information for the variants.
 type Header struct {
+	sync.RWMutex
+
 	SampleNames   []string
 	Infos         map[string]*Info
 	SampleFormats map[string]*SampleFormat
