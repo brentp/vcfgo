@@ -106,7 +106,12 @@ func (v *Variant) CIEnd() (uint32, uint32, bool) {
 
 // End returns the 0-based start + the length of the reference allele.
 func (v *Variant) End() uint32 {
-	if v.Alt()[0][0] != '<' {
+	/*
+		if len(v.Alt()[0]) == 0 {
+			log.Println(v.Chrom(), v.Start()+1, v.Ref(), v.Alt())
+		}*/
+	a := v.Alt()[0]
+	if len(a) == 0 || a[0] != '<' {
 		return uint32(v.Pos-1) + uint32(len(v.Ref()))
 	}
 	if strings.HasPrefix(v.Alt()[0], "<DEL") || strings.HasPrefix(v.Alt()[0], "<DUP") || strings.HasPrefix(v.Alt()[0], "<INV") || strings.HasPrefix(v.Alt()[0], "<CN") {
