@@ -13,7 +13,7 @@ type InfoSuite struct {
 var _ = Suite(&InfoSuite{})
 
 func (s *InfoSuite) TestInfoGet(c *C) {
-	i := NewInfoByte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3", nil)
+	i := NewInfoByte([]byte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3"), nil)
 	c.Assert(string(i.SGet("as")), Equals, "22")
 	c.Assert(string(i.SGet("asdf")), Equals, "123")
 	c.Assert(string(i.SGet("ddd")), Equals, "ddd")
@@ -28,12 +28,12 @@ func (s *InfoSuite) TestInfoGet(c *C) {
 	c.Assert(string(i.SGet("")), Equals, "")
 	c.Assert(string(i.SGet("ddddd")), Equals, "")
 	c.Assert(string(i.SGet("FLAG33")), Equals, "")
-	i = NewInfoByte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3;asst=33,44", nil)
+	i = NewInfoByte([]byte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3;asst=33,44"), nil)
 	c.Assert(string(i.SGet("t")), Equals, "")
 }
 
 func (s *InfoSuite) TestInfoSet(c *C) {
-	i := NewInfoByte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3", nil)
+	i := NewInfoByte([]byte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3"), nil)
 	i.Set("as", "23")
 	c.Assert(string(i.SGet("as")), Equals, "23")
 	i.Set("asst", 24)
@@ -61,12 +61,12 @@ func (s *InfoSuite) TestInfoSet(c *C) {
 }
 
 func (s *InfoSuite) TestInfoKeys(c *C) {
-	i := NewInfoByte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3", nil)
+	i := NewInfoByte([]byte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3"), nil)
 	c.Assert(i.Keys(), DeepEquals, []string{"asdf", "FLAG1", "ddd", "FLAG", "dddd", "as", "FLAG2", "other", "FLAG3"})
 }
 
 func (s *InfoSuite) TestInfoDelete(c *C) {
-	i := NewInfoByte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3", nil)
+	i := NewInfoByte([]byte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3"), nil)
 	i.Delete("asdf")
 	c.Assert(i.String(), Equals, "FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3")
 	i.Delete("other")
@@ -96,7 +96,7 @@ func (s *InfoSuite) TestInfoDelete(c *C) {
 }
 
 func (s *InfoSuite) TestInfoFlag(c *C) {
-	i := NewInfoByte("AAA;asdf=123;FLAG1;ddd=123", nil)
+	i := NewInfoByte([]byte("AAA;asdf=123;FLAG1;ddd=123"), nil)
 	i.Set("ggg", true)
 	c.Assert(i.String(), Equals, "AAA;asdf=123;FLAG1;ddd=123;ggg")
 

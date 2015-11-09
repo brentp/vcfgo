@@ -294,6 +294,13 @@ func (i InfoByte) Bytes() []byte {
 	return i.Info
 }
 
+func (i *InfoByte) GetHeaderType(field string) string {
+	if h, ok := i.header.Infos[field]; ok {
+		return h.Type
+	}
+	return ""
+}
+
 func (i *InfoByte) UpdateHeader(key string, value interface{}) {
 	i.header.Lock()
 	defer i.header.Unlock()

@@ -71,12 +71,9 @@ func (s *VariantSuite) TestInfoMap(c *C) {
 	v.Info_.Set("asdf", 123)
 	v.Info_.Set("float", 123.2001)
 	has, err := v.Info_.Get("asdf")
-	c.Assert(has, Equals, 123)
-	val, err := v.Info_.Get("float")
-	vv, ok := val.(float64)
-	c.Assert(ok, Equals, true)
-	c.Assert(vv-123.2001 < 1e-4 || 123.2001-vv < 1e-4, Equals, true)
-	c.Assert(err, IsNil)
+	c.Assert(has, Equals, "123")
+	_, err = v.Info_.Get("float")
+	c.Assert(err, ErrorMatches, ".*float not found in header.*")
 
 	c.Assert(fmt.Sprintf("%s", v.Info_), Equals, "NS=3;DP=14;AF=0.5;DB;H2;asdf=123;float=123.2001")
 
