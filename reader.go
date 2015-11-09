@@ -26,6 +26,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"strconv"
 	"strings"
 	"unsafe"
@@ -172,6 +173,13 @@ func unsafeString(b []byte) string {
 }
 
 func (vr *Reader) Parse(fields [][]byte) interfaces.IVariant {
+	if len(fields) < 7 {
+		s := make([]string, 0)
+		for _, b := range fields {
+			s = append(s, string(b))
+		}
+		log.Printf("error at line %d: not enough fields for a VCF. Content was: '%s'\n", vr.LineNumber, strings.Join(s, "\t"))
+	}
 
 	pos, err := strconv.ParseUint(unsafeString(fields[1]), 10, 64)
 	vr.verr.Add(err, vr.LineNumber)
