@@ -239,6 +239,13 @@ func (vr *Reader) AddInfoToHeader(id string, num string, stype string, desc stri
 	h.Infos[id] = &Info{Id: id, Number: num, Type: stype, Description: desc}
 }
 
+func (vr *Reader) GetHeaderType(field string) string {
+	if h, ok := vr.Header.Infos[field]; ok {
+		return h.Type
+	}
+	return ""
+}
+
 // Error() aggregates the multiple errors that can occur into a single object.
 func (vr *Reader) Error() error {
 	if vr.verr.IsEmpty() {
