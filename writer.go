@@ -17,10 +17,6 @@ type Writer struct {
 func NewWriter(w io.Writer, h *Header) (*Writer, error) {
 	fmt.Fprintf(w, "##fileformat=VCFv%s\n", h.FileFormat)
 
-	for _, line := range h.Extras {
-		fmt.Fprintf(w, "%s\n", line)
-	}
-
 	for _, imap := range h.Contigs {
 		fmt.Fprintf(w, "##contig=<ID=%s", imap["ID"])
 
@@ -76,6 +72,9 @@ func NewWriter(w io.Writer, h *Header) (*Writer, error) {
 	sort.Strings(keys)
 	for _, k := range keys {
 		fmt.Fprintf(w, "%s\n", h.SampleFormats[k])
+	}
+	for _, line := range h.Extras {
+		fmt.Fprintf(w, "%s\n", line)
 	}
 
 	fmt.Fprint(w, "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT")
