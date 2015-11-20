@@ -3,6 +3,7 @@ package vcfgo
 import (
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 )
 
@@ -33,7 +34,13 @@ func NewWriter(w io.Writer, h *Header) (*Writer, error) {
 		fmt.Fprintln(w, ">")
 	}
 
+	// Samples
+	keys := make([]string, 0, len(h.Samples))
 	for sampleId := range h.Samples {
+		keys = append(keys, sampleId)
+	}
+	sort.Strings(keys)
+	for _, sampleId := range keys {
 		fmt.Fprintln(w, h.Samples[sampleId])
 	}
 
@@ -41,16 +48,34 @@ func NewWriter(w io.Writer, h *Header) (*Writer, error) {
 		fmt.Fprintln(w, h.Pedigrees[i])
 	}
 
-	for k, v := range h.Filters {
-		fmt.Fprintf(w, "##FILTER=<ID=%s,Description=\"%s\">\n", k, v)
+	// Filters
+	keys = keys[:0]
+	for k := range h.Filters {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		fmt.Fprintf(w, "##FILTER=<ID=%s,Description=\"%s\">\n", k, h.Filters[k])
 	}
 
-	for _, i := range h.Infos {
-		fmt.Fprintf(w, "%s\n", i)
+	// Infos
+	keys = keys[:0]
+	for k := range h.Infos {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		fmt.Fprintf(w, "%s\n", h.Infos[k])
 	}
 
-	for _, i := range h.SampleFormats {
-		fmt.Fprintf(w, "%s\n", i)
+	// SampleFormats
+	keys = keys[:0]
+	for k := range h.SampleFormats {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		fmt.Fprintf(w, "%s\n", h.SampleFormats[k])
 	}
 
 	fmt.Fprint(w, "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT")
