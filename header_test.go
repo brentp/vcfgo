@@ -76,7 +76,7 @@ func (s *BadVcfSuite) SetUpTest(c *C) {
 func (s *HeaderSuite) TestReaderHeaderParseSample(c *C) {
 	r, err := vcfgo.NewReader(s.reader, false)
 	c.Assert(err, IsNil)
-	v := r.Read().(*vcfgo.Variant)
+	v := r.Read()
 	c.Assert(r.Error(), IsNil)
 
 	fmt := v.Format
@@ -93,7 +93,7 @@ func (s *HeaderSuite) TestSamples(c *C) {
 	r, err := vcfgo.NewReader(s.reader, false)
 	c.Assert(err, IsNil)
 
-	v := r.Read().(*vcfgo.Variant)
+	v := r.Read()
 	samp := v.Samples[0]
 	c.Assert(samp.DP, Equals, 1)
 	c.Assert(samp.GQ, Equals, 48)

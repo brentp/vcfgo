@@ -30,8 +30,6 @@ import (
 	"strconv"
 	"strings"
 	"unsafe"
-
-	"github.com/brentp/irelate/interfaces"
 )
 
 // used for the quality score which is 0 to 255, but allows "."
@@ -148,7 +146,7 @@ func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
 
 // Read returns a pointer to a Variant. Upon reading the caller is assumed
 // to check Reader.Err()
-func (vr *Reader) Read() interfaces.IVariant {
+func (vr *Reader) Read() *Variant {
 
 	line, err := vr.buf.ReadBytes('\n')
 	if err != nil {
@@ -172,7 +170,7 @@ func unsafeString(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
 }
 
-func (vr *Reader) Parse(fields [][]byte) interfaces.IVariant {
+func (vr *Reader) Parse(fields [][]byte) *Variant {
 	if len(fields) < 7 {
 		s := make([]string, 0)
 		for _, b := range fields {

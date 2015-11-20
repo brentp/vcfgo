@@ -45,7 +45,7 @@ func (s *RegressionSuite) SetUpTest(c *C) {
 func (s *RegressionSuite) TestRegr1(c *C) {
 	rdr, err := vcfgo.NewReader(s.reader, false)
 	c.Assert(err, IsNil)
-	v := rdr.Read().(*vcfgo.Variant)
+	v := rdr.Read() //.(*vcfgo.Variant)
 	snp, err := v.Info().Get("TYPE")
 	c.Assert(err, IsNil)
 	c.Assert(snp, DeepEquals, []string{"snp"})
@@ -57,8 +57,8 @@ func (s *RegressionSuite) TestRegr1(c *C) {
 func (s *RegressionSuite) TestRegr2(c *C) {
 	rdr, err := vcfgo.NewReader(s.reader, false)
 	c.Assert(err, IsNil)
-	v := rdr.Read().(*vcfgo.Variant)
-	v = rdr.Read().(*vcfgo.Variant)
+	v := rdr.Read() //.(*vcfgo.Variant)
+	v = rdr.Read()  //.(*vcfgo.Variant)
 
 	str := fmt.Sprintf("%s", v)
 	c.Assert(str, Equals, "1\t98685\t.\tG\tA\t610.5\t.\tAB=0;ABP=0")

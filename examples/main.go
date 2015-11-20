@@ -3,10 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/brentp/vcfgo"
 	"io"
 	"log"
 	"os"
+
+	"github.com/brentp/vcfgo"
 )
 
 func main() {
