@@ -29,11 +29,28 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"sync"
 	"unsafe"
 )
 
 // used for the quality score which is 0 to 255, but allows "."
 const MISSING_VAL = 256
+
+type VariantArena struct {
+	mu       sync.Mutex
+	variants []Variant
+}
+
+func (va *VariantArena) Get() *Variant {
+	va.mu.Lock()
+	defer va.mu.Unlock()
+	if va.variants == nil || len(va.variants) == 0 {
+		va.variants = make([]Variant, 10000)
+	}
+	v := &va.variants[len(va.variants)-1]
+	va.variants = va.variants[:len(va.variants)-1]
+	return v
+}
 
 // Reader holds information about the current line number (for errors) and
 // The VCF header that indicates the structure of records.
@@ -44,12 +61,13 @@ type Reader struct {
 	LineNumber  int64
 	lazySamples bool
 	r           io.Reader
+	arena       *VariantArena
 }
 
 func NewWithHeader(r io.Reader, h *Header, lazySamples bool) (*Reader, error) {
 	buf := bufio.NewReaderSize(r, 32768*2)
 	var verr = NewVCFError()
-	return &Reader{buf, h, verr, 1, lazySamples, r}, nil
+	return &Reader{buf, h, verr, 1, lazySamples, r, &VariantArena{}}, nil
 }
 
 // NewReader returns a Reader.
@@ -140,7 +158,7 @@ func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
 			return nil, e
 		}
 	}
-	reader := &Reader{buffered, h, verr, LineNumber, lazySamples, r}
+	reader := &Reader{buffered, h, verr, LineNumber, lazySamples, r, &VariantArena{}}
 	return reader, reader.Error()
 }
 
@@ -191,19 +209,20 @@ func (vr *Reader) Parse(fields [][]byte) *Variant {
 
 	vr.verr.Add(err, vr.LineNumber)
 
-	v := &Variant{Chromosome: string(fields[0]), Pos: pos, Id_: string(fields[2]), Reference: string(fields[3]), Alternate: strings.Split(string(fields[4]), ","), Quality: float32(qual),
-		Filter: string(fields[6]), Header: vr.Header}
+	v := vr.arena.Get()
+
+	*v = Variant{Chromosome: string(fields[0]), Pos: pos, Id_: string(fields[2]), Reference: string(fields[3]), Alternate: strings.Split(string(fields[4]), ","), Quality: float32(qual),
+		Filter: string(fields[6]), Header: vr.Header, LineNumber: vr.LineNumber}
 
 	if len(fields) > 8 {
-		v.Format = strings.Split(string(fields[8]), ":")
+		(*v).Format = strings.Split(string(fields[8]), ":")
 		if len(fields) > 9 {
-			v.sampleString = string(fields[9])
+			(*v).sampleString = string(fields[9])
 		}
 		if !vr.lazySamples {
 			vr.Header.ParseSamples(v)
 		}
 	}
-	v.LineNumber = vr.LineNumber
 
 	v.Info_ = NewInfoByte(fields[7], vr.Header)
 	vr.verr.Add(err, vr.LineNumber)
