@@ -68,10 +68,11 @@ func (v *Variant) CIPos() (uint32, uint32, bool) {
 		v.Header.Lock()
 		v.Header.Infos["CIPOS"] = &Info{Id: "CIPOS", Number: "2", Description: "CIPOS", Type: "Integer"}
 		v.Header.Unlock()
-		v.Header.RLock()
+	} else {
+		v.Header.RUnlock()
 	}
+
 	ipair, err := v.Info().Get("CIPOS")
-	v.Header.RUnlock()
 	if ipair == nil && err != nil {
 		return s, s + 1, false
 	}
@@ -98,10 +99,10 @@ func (v *Variant) CIEnd() (uint32, uint32, bool) {
 		v.Header.Lock()
 		v.Header.Infos["CIEND"] = &Info{Id: "CIEND", Number: "2", Description: "CIEND", Type: "Integer"}
 		v.Header.Unlock()
-		v.Header.RLock()
+	} else {
+		v.Header.RUnlock()
 	}
 	ipair, err := v.Info().Get("CIEND")
-	v.Header.RUnlock()
 	if ipair == nil && err != nil {
 		return e - 1, e, false
 	}
