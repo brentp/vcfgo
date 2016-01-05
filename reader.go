@@ -144,6 +144,33 @@ func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
 	return reader, reader.Error()
 }
 
+func makeFields(line []byte) [][]byte {
+	fields := make([][]byte, 9)
+	copy(fields[:8], bytes.SplitN(line, []byte{'\t'}, 8))
+	s := 0
+	for i, f := range fields {
+		if i == 7 {
+			break
+		}
+		s += len(f) + 1
+	}
+	e := bytes.IndexByte(line[s:], '\t')
+	if e == -1 {
+		e = len(line)
+	} else {
+		e += s
+	}
+
+	fields[7] = line[s:e]
+	if len(line) > e+1 {
+		fields[8] = line[e+1:]
+	} else {
+		fields = fields[:8]
+	}
+
+	return fields
+}
+
 // Read returns a pointer to a Variant. Upon reading the caller is assumed
 // to check Reader.Err()
 func (vr *Reader) Read() *Variant {
@@ -161,8 +188,7 @@ func (vr *Reader) Read() *Variant {
 	if line[len(line)-1] == '\n' {
 		line = line[:len(line)-1]
 	}
-	fields := bytes.SplitN(line, []byte{'\t'}, 10)
-
+	fields := makeFields(line)
 	return vr.Parse(fields)
 }
 
@@ -195,10 +221,9 @@ func (vr *Reader) Parse(fields [][]byte) *Variant {
 		Filter: string(fields[6]), Header: vr.Header}
 
 	if len(fields) > 8 {
-		v.Format = strings.Split(string(fields[8]), ":")
-		if len(fields) > 9 {
-			v.sampleString = string(fields[9])
-		}
+		sample_fields := bytes.SplitN(fields[8], []byte{'\t'}, 2)
+		v.Format = strings.Split(string(sample_fields[0]), ":")
+		v.sampleString = string(sample_fields[1])
 		if !vr.lazySamples {
 			vr.Header.ParseSamples(v)
 		}

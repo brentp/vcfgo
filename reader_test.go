@@ -27,6 +27,13 @@ func (s *ReaderSuite) TestReaderHeaderSamples(c *C) {
 
 }
 
+func (s *ReaderSuite) TestLazyReader(c *C) {
+	rdr, err := vcfgo.NewReader(s.reader, true)
+	c.Assert(err, IsNil)
+	rec := rdr.Read() //.(*vcfgo.Variant)
+	c.Assert(rec.String(), Equals, "20\t14370\trs6054257\tG\tA\t29.0\tPASS\tNS=3;DP=14;AF=0.5;DB;H2\tGT:GQ:DP:HQ\t0|0:48:1:51,51\t1|0:48:8:51,51\t1/1:43:5:.,.")
+}
+
 func (s *ReaderSuite) TestReaderHeaderInfos(c *C) {
 	v, err := vcfgo.NewReader(s.reader, false)
 	c.Assert(err, IsNil)
