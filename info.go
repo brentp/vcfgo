@@ -17,16 +17,41 @@ func NewInfoByte(info []byte, h *Header) *InfoByte {
 	return &InfoByte{Info: info, header: h}
 }
 
+/*
+func bytesToString(b []byte) string {
+	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
+	sh := reflect.StringHeader{bh.Data, bh.Len}
+	return *(*string)(unsafe.Pointer(&sh))
+}
+*/
+
 // return the start and end positions of the value.
 // for flag the value is the flag.
 func getpositions(info []byte, key string) (start, end int) {
+	//if ipos := strings.LastIndex(bytesToString(info), ";"+key+"="); ipos != -1 {
+	if ipos := bytes.Index(info, []byte(";"+key+"=")); ipos != -1 {
+		start = ipos + 2 + len(key)
+		for end := start + 1; end < len(info)-1; end++ {
+			if info[end] == ';' {
+				return start, end - 1
+			}
+		}
+		return start, len(info) - 1
+	}
+
 	bkey := []byte(key)
-	pos := 0
+	ipos, pos := 0, 0
+
 	for {
 		if pos >= len(info) {
 			return -1, -1
 		}
-		ipos := bytes.Index(info[pos:], bkey)
+		if pos == 0 {
+			ipos = bytes.Index(info, bkey)
+		} else {
+			ipos = bytes.Index(info[pos:], bkey)
+		}
+
 		if ipos == -1 {
 			return -1, -1
 		}
@@ -334,7 +359,7 @@ func (i *InfoByte) Set(key string, value interface{}) error {
 			}
 			return nil
 		}
-		slug := []byte(fmt.Sprintf(";%s=%s", key, ItoS(key, value)))
+		slug := fmt.Sprintf(";%s=%s", key, ItoS(key, value))
 		i.Info = append(i.Info, slug...)
 		//i.UpdateHeader(key, value)
 		return nil
