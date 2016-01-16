@@ -226,10 +226,13 @@ func (i InfoByte) Get(key string) (interface{}, error) {
 		if skey == v {
 			return true, err
 		}
+		if v == "" {
+			return nil, err
+		}
 		return v, err
 	}
 
-	if len(v) == 0 {
+	if v == "" {
 		var err error
 		var val interface{} = nil
 		if hi.Type != "Flag" {
