@@ -126,7 +126,7 @@ func (v *Variant) End() uint32 {
 		return uint32(v.Pos-1) + uint32(len(v.Ref()))
 	}
 	if strings.HasPrefix(v.Alt()[0], "<DEL") || strings.HasPrefix(v.Alt()[0], "<DUP") || strings.HasPrefix(v.Alt()[0], "<INV") || strings.HasPrefix(v.Alt()[0], "<CN") {
-		if svlen, err := v.Info().Get("SVLEN"); err == nil || strings.Contains(err.Error(), "not found in header") {
+		if svlen, err := v.Info().Get("SVLEN"); err == nil || strings.Contains(err.Error(), "not found in header") && svlen != nil {
 			var slen int
 			err = nil
 			switch svlen.(type) {
@@ -146,7 +146,8 @@ func (v *Variant) End() uint32 {
 			case interface{}:
 				slen = svlen.(int)
 			default:
-				log.Fatalf("non int type for SVLEN")
+				log.Printf("non int type for SVLEN:%s at %s:%d\n", svlen, v.Chrom(), v.Pos)
+				slen = 1
 			}
 			if slen < 0 {
 				slen = -slen
@@ -154,6 +155,12 @@ func (v *Variant) End() uint32 {
 			return uint32(int(v.Pos) + slen)
 
 		} else if end, err := v.Info().Get("END"); err == nil {
+			if end == nil || end == "" {
+				if a != "<CN0>" {
+					log.Printf("non int type for END and SVLEN:%s at %s:%d\n", svlen, v.Chrom(), v.Pos)
+				}
+				return uint32(v.Pos + 1)
+			}
 			return uint32(end.(int))
 		}
 		log.Printf("no svlen for variant %s:%d\n%s\nUsing %d", v.Chromosome, v.Pos, v, v.Pos+1)
