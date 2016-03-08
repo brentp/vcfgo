@@ -32,6 +32,11 @@ func (s *InfoSuite) TestInfoGet(c *C) {
 	c.Assert(string(i.SGet("t")), Equals, "")
 }
 
+func (s *InfoSuite) TestEmptyInfo(c *C) {
+	i := NewInfoByte([]byte("."), nil)
+	c.Assert(i.String(), Equals, "")
+}
+
 func (s *InfoSuite) TestInfoSet(c *C) {
 	i := NewInfoByte([]byte("asdf=123;FLAG1;ddd=ddd;FLAG;dddd=dddd;as=22;FLAG2;other=as;FLAG3"), nil)
 	i.Set("as", "23")

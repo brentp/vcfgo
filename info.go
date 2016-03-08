@@ -14,6 +14,9 @@ type InfoByte struct {
 }
 
 func NewInfoByte(info []byte, h *Header) *InfoByte {
+	if info[0] == '.' && len(info) == 1 {
+		return &InfoByte{Info: []byte(""), header: h}
+	}
 	return &InfoByte{Info: info, header: h}
 }
 
