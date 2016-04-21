@@ -77,6 +77,7 @@ func (h *Header) parseSample(format []string, s string) (*SampleGenotype, []erro
 	var errs []error
 	//}
 	var e error
+
 	for i, field := range format {
 		value = values[i]
 		switch field {
@@ -147,45 +148,24 @@ func (h *Header) setSampleGL(geno *SampleGenotype, value string, isPL bool) erro
 }
 
 func (h *Header) setSampleGT(geno *SampleGenotype, value string) error {
-	if len(geno.GT) != 0 {
-		geno.GT = geno.GT[:0]
+	geno.Phased = strings.Contains(value, "|")
+	splitString := "/"
+	if geno.Phased {
+		splitString = "|"
 	}
-	if value == "." {
-		geno.GT = []int{-1, -1}
-		geno.Phased = false
-	} else if len(value) == 3 && (value[1] == '/' || value[1] == '|') {
-		geno.Phased = value[1] == '|'
-		var v int
-		if value[0] == '.' {
-			v = -1
-		} else {
-			v = int(value[0] - '0') // convert to int the old-fashioned way
-		}
-		geno.GT = append(geno.GT, v)
-		if value[2] == '.' {
-			v = -1
-		} else {
-			v = int(value[2] - '0') // convert to int
-		}
-		geno.GT = append(geno.GT, v)
-	} else {
-		geno.Phased = strings.Contains(value, "|")
-		splitString := "/"
-		if geno.Phased {
-			splitString = "|"
-		}
-		alleles := strings.Split(value, splitString)
-		var v int
-		for _, allele := range alleles {
-			if allele == "." {
-				v = -1
-			} else {
-				v = int(v - '0')
-			}
-			geno.GT = append(geno.GT, v)
-		}
 
+	alleles := strings.Split(value, splitString)
+	for _, allele := range alleles {
+		switch allele {
+			case ".":
+				geno.GT = append(geno.GT, -1)
+			case "1":
+				geno.GT = append(geno.GT, 1)
+			case "0":
+				geno.GT = append(geno.GT, 0)
+		}
 	}
+
 	return nil
 }
 

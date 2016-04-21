@@ -33,7 +33,9 @@ var vcfStr = `##fileformat=VCFv4.2
 20	17330	.	T	A	3	q10	NS=3;DP=11;AF=0.017	GT:GQ:DP:HQ	0|0:49:3:58,50	0|1:3:5:65,3	0/0:41:3:.,.
 20	1110696	rs6040355	A	G,T	67	PASS	NS=2;DP=10;AF=0.333,0.667;AA=T;DB	GT:GQ:DP:HQ	1|2:21:6:23,27	2|1:2:0:18,2	2/2:35:4:.,.
 20	1230237	.	T	.	47	PASS	NS=3;DP=13;AA=T	GT:GQ:DP:HQ	0|0:54:7:56,60	0|0:48:4:51,51	0/0:61:2:.,.
-20	1234567	microsat1	GTC	G,GTCT	50	PASS	NS=3;DP=9;AA=G	GT:GQ:DP	0/1:35:4	0/2:17:2	1/1:40:3`
+20	1234567	microsat1	GTC	G,GTCT	50	PASS	NS=3;DP=9;AA=G	GT:GQ:DP	0/1:35:4	0/2:17:2	1/1:40:3
+X	153171993	rs5201	A	.	.	.	.	GT	0	1	.
+TRIPLOID	153171993	rs5201	A	.	.	.	.	GT	0|0|0	1/0/1	.`
 
 var bedStr = `1	0	10000	0.061011
 1	10000	10154	0.070013
@@ -95,6 +97,7 @@ func (s *HeaderSuite) TestSamples(c *C) {
 
 	v := r.Read()
 	samp := v.Samples[0]
+
 	c.Assert(samp.DP, Equals, 1)
 	c.Assert(samp.GQ, Equals, 48)
 
@@ -107,24 +110,72 @@ func (s *HeaderSuite) TestSamples(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(f, DeepEquals, []int{-1, -1})
 
-	c.Assert(samp.GT, DeepEquals, []int{0, 0})
-	c.Assert(samp.Phased, DeepEquals, true)
-
-	c.Assert(samp2.GT, DeepEquals, []int{1, 1})
-	c.Assert(samp2.Phased, DeepEquals, false)
-
-	var lastV *vcfgo.Variant
+	variants := make([]*vcfgo.Variant, 0)
+	chromCount := make(map[string]int)
 	var vv interfaces.IVariant
 	for vv = r.Read(); vv != nil; vv = r.Read() {
 		v := vv.(*vcfgo.Variant)
 		if v == nil {
 			break
 		}
-		c.Assert(v.Chromosome, Equals, "20")
-		lastV = v
+
+		variants = append(variants, v)
+		chromCount[v.Chromosome]++
 	}
-	c.Assert(int(lastV.Pos), Equals, int(1234567))
-	c.Assert(lastV.Filter, Equals, "PASS")
+
+	c.Assert(chromCount["20"], Equals, 4)
+	c.Assert(chromCount["X"], Equals, 1)
+
+	c.Assert(int(variants[len(variants) - 1].Pos), Equals, int(153171993))
+	c.Assert(variants[3].Filter, Equals, "PASS")
+}
+
+func (s *HeaderSuite) TestSampleGenotypes(c *C) {
+	r, err := vcfgo.NewReader(s.reader, false)
+	c.Assert(err, IsNil)
+
+	variants := make([]*vcfgo.Variant, 0)
+	for {
+		v := r.Read()
+		if v == nil {
+			break
+		}
+
+		variants = append(variants, v)
+	}
+
+	// validate diploid parsing works
+	firstVariant := variants[0]
+	c.Assert(firstVariant.Samples[0].GT, DeepEquals, []int{0, 0})
+	c.Assert(firstVariant.Samples[0].Phased, Equals, true)
+
+	c.Assert(firstVariant.Samples[1].GT, DeepEquals, []int{1, 0})
+	c.Assert(firstVariant.Samples[1].Phased, Equals, true)
+
+	c.Assert(firstVariant.Samples[2].GT, DeepEquals, []int{1, 1})
+	c.Assert(firstVariant.Samples[2].Phased, Equals, false)
+
+	// validate haploid parsing works
+	hapVariant := variants[5]
+	c.Assert(hapVariant.Samples[0].GT, DeepEquals, []int{0})
+	c.Assert(hapVariant.Samples[0].Phased, Equals, false)
+
+	c.Assert(hapVariant.Samples[1].GT, DeepEquals, []int{1})
+	c.Assert(hapVariant.Samples[1].Phased, Equals, false)
+
+	c.Assert(hapVariant.Samples[2].GT, DeepEquals, []int{-1})
+	c.Assert(hapVariant.Samples[2].Phased, Equals, false)
+
+	// validate triploid parsing works
+	tripVariant := variants[6]
+	c.Assert(tripVariant.Samples[0].GT, DeepEquals, []int{0,0,0})
+	c.Assert(tripVariant.Samples[0].Phased, Equals, true)
+
+	c.Assert(tripVariant.Samples[1].GT, DeepEquals, []int{1,0,1})
+	c.Assert(tripVariant.Samples[1].Phased, Equals, false)
+
+	c.Assert(tripVariant.Samples[2].GT, DeepEquals, []int{-1})
+	c.Assert(tripVariant.Samples[2].Phased, Equals, false)
 }
 
 /*
