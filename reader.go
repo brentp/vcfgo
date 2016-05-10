@@ -145,8 +145,7 @@ func NewReader(r io.Reader, lazySamples bool) (*Reader, error) {
 }
 
 func makeFields(line []byte) [][]byte {
-	fields := make([][]byte, 9)
-	copy(fields[:8], bytes.SplitN(line, []byte{'\t'}, 8))
+	fields := bytes.SplitN(line, []byte{'\t'}, 9)
 	s := 0
 	for i, f := range fields {
 		if i == 7 {
@@ -162,12 +161,6 @@ func makeFields(line []byte) [][]byte {
 	}
 
 	fields[7] = line[s:e]
-	if len(line) > e+1 {
-		fields[8] = line[e+1:]
-	} else {
-		fields = fields[:8]
-	}
-
 	return fields
 }
 
