@@ -1,6 +1,9 @@
 package vcfgo
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 func SplitAlts(v *Variant) []*Variant {
 	vars := make([]*Variant, len(v.Alt()))
@@ -77,7 +80,7 @@ func splitG(m interface{}, i int, nAlts int) ([]interface{}, error) {
 func splitGT(m interface{}, i int) ([]interface{}, error) {
 	ml := m.([]interface{})
 	out := make([]interface{}, len(ml))
-	ai := fmt.Sprintf("%d", i)
+	ai := strconv.Itoa(i)
 	for i, allelei := range ml {
 		allele := allelei.(string)
 		if allele == "0" {
