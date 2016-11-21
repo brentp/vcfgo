@@ -1,7 +1,6 @@
 package vcfgo
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -133,6 +132,9 @@ func (s *VCFSuite) TestIssue5(c *C) {
 
 	variant := vcf.Read()
 	samples := variant.Samples
-	fmt.Printf("%+v\n%+v\n%+v", samples[0], samples[1], samples[2])
+
+	c.Assert(samples[0].GT, DeepEquals, []int{2, 2})
+	c.Assert(samples[1].GT, DeepEquals, []int{2, 2})
+	c.Assert(samples[2].GT, DeepEquals, []int{2, 2})
 
 }
