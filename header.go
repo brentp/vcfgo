@@ -157,12 +157,18 @@ func (h *Header) setSampleGT(geno *SampleGenotype, value string) error {
 	alleles := strings.Split(value, splitString)
 	for _, allele := range alleles {
 		switch allele {
-			case ".":
-				geno.GT = append(geno.GT, -1)
-			case "1":
-				geno.GT = append(geno.GT, 1)
-			case "0":
-				geno.GT = append(geno.GT, 0)
+		case ".":
+			geno.GT = append(geno.GT, -1)
+		case "1":
+			geno.GT = append(geno.GT, 1)
+		case "0":
+			geno.GT = append(geno.GT, 0)
+		default:
+			v, err := strconv.Atoi(allele)
+			if err != nil {
+				return err
+			}
+			geno.GT = append(geno.GT, v)
 		}
 	}
 

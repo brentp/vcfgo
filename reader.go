@@ -26,6 +26,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"os"
 	"log"
 	"strconv"
 	"strings"
@@ -152,6 +153,10 @@ func makeFields(line []byte) [][]byte {
 			break
 		}
 		s += len(f) + 1
+	}
+	if s >= len(line) {
+		fmt.Fprintf(os.Stderr, "XXXXX: bad VCF line '%s'", line)
+		return fields
 	}
 	e := bytes.IndexByte(line[s:], '\t')
 	if e == -1 {

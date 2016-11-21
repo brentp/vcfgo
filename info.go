@@ -239,7 +239,7 @@ func (i InfoByte) Get(key string) (interface{}, error) {
 		var err error
 		var val interface{} = nil
 		if hi.Type != "Flag" {
-			err = fmt.Errorf("Info Error: %s not found in row", skey)
+			err = fmt.Errorf("Info Error: %s not found in INFO", skey)
 		} else {
 			val = false
 		}

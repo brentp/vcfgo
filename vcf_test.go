@@ -1,8 +1,11 @@
 package vcfgo
 
 import (
-	. "gopkg.in/check.v1"
+	"fmt"
+	"os"
 	"testing"
+
+	. "gopkg.in/check.v1"
 )
 
 func Test(t *testing.T) { TestingT(t) }
@@ -120,4 +123,16 @@ func (s *VCFSuite) TestHeaderSampleLine(c *C) {
 		c.Assert(err, IsNil)
 		c.Assert(r, DeepEquals, v.exp)
 	}
+}
+
+func (s *VCFSuite) TestIssue5(c *C) {
+	rdr, err := os.Open("test-multi-allelic.vcf")
+	c.Assert(err, IsNil)
+	vcf, err := NewReader(rdr, false)
+	c.Assert(err, IsNil)
+
+	variant := vcf.Read()
+	samples := variant.Samples
+	fmt.Printf("%+v\n%+v\n%+v", samples[0], samples[1], samples[2])
+
 }
