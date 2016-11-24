@@ -177,7 +177,7 @@ func fmtFloat32(v float32) string {
 		val = fmt.Sprintf("%.5g", v)
 	}
 	val = strings.TrimRight(strings.TrimRight(val, "0"), ".")
-	if val == "" {
+	if val == "" || val == "-" {
 		val = "0"
 	}
 	return val
@@ -191,7 +191,7 @@ func fmtFloat64(v float64) string {
 		val = fmt.Sprintf("%.5g", v)
 	}
 	val = strings.TrimRight(strings.TrimRight(val, "0"), ".")
-	if val == "" {
+	if val == "" || val == "-" {
 		val = "0"
 	}
 	return val
