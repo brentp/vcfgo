@@ -17,7 +17,13 @@ func main() {
 	f, err := os.Open(files[0])
 
 	r := io.Reader(f)
-	vr, err := vcfgo.NewReader(r, false)
+	var vr *vcfgo.Reader
+
+	if len(files[0]) > 3 && files[0][len(files[0])-3:len(files[0])] == ".gz" {
+		vr, err = vcfgo.NewGZReader(f, false)
+	} else {
+		vr, err = vcfgo.NewReader(r, false)
+	}
 	if err != nil {
 		panic(err)
 	}
