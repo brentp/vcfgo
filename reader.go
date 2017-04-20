@@ -24,10 +24,11 @@ package vcfgo
 import (
 	"bufio"
 	"bytes"
+	"compress/gzip"
 	"fmt"
 	"io"
-	"os"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"unsafe"
@@ -51,6 +52,18 @@ func NewWithHeader(r io.Reader, h *Header, lazySamples bool) (*Reader, error) {
 	buf := bufio.NewReaderSize(r, 32768*2)
 	var verr = NewVCFError()
 	return &Reader{buf, h, verr, 1, lazySamples, r}, nil
+}
+
+func NewGZReader(file *os.File, lazySamples bool) (*Reader, error) {
+	var fileReader io.ReadCloser = file
+	fileReader, err := gzip.NewReader(file)
+	if err != nil {
+		return nil, err
+	}
+
+	defer fileReader.Close()
+
+	return NewReader(fileReader, lazySamples)
 }
 
 // NewReader returns a Reader.
