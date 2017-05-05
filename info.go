@@ -3,8 +3,6 @@ package vcfgo
 import (
 	"bytes"
 	"fmt"
-	"log"
-	"reflect"
 	"strconv"
 	"strings"
 )
@@ -198,7 +196,6 @@ func ItoS(k string, v interface{}) string {
 			return strings.Join(v.([]string), ",")
 
 		default:
-			log.Println(reflect.TypeOf(v))
 			return v.(string)
 		}
 	}
