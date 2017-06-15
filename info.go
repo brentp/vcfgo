@@ -147,6 +147,8 @@ func (i *InfoByte) Delete(key string) {
 func ItoS(k string, v interface{}) string {
 	if _, ok := v.(bool); ok {
 		return k
+	} else if v == nil {
+		return "."
 	} else {
 		switch v.(type) {
 		case []interface{}:
