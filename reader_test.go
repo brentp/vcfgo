@@ -2,6 +2,7 @@ package vcfgo_test
 
 import (
 	"io"
+	"os"
 	"strings"
 
 	"github.com/brentp/vcfgo"
@@ -90,4 +91,16 @@ func (s *ReaderSuite) TestReaderRead(c *C) {
 	c.Assert(rec0.Alt()[0], Equals, "A")
 	c.Assert(rec0.Quality, Equals, float32(3))
 	c.Assert(rec0.Filter, Equals, "q10")
+}
+
+func (s *ReaderSuite) TestReaderRVGBug(c *C) {
+	v, err := os.Open("test-h.vcf")
+	if err != nil {
+		c.Fatalf("error opening test-h.vcf")
+	}
+	rdr, err := vcfgo.NewReader(v, false)
+	c.Assert(err, IsNil)
+	rec := rdr.Read()
+	_ = rec
+
 }
