@@ -34,7 +34,7 @@ func (s *InfoSuite) TestInfoGet(c *C) {
 
 func (s *InfoSuite) TestEmptyInfo(c *C) {
 	i := NewInfoByte([]byte("."), nil)
-	c.Assert(i.String(), Equals, "")
+	c.Assert(i.String(), Equals, ".")
 }
 
 func (s *InfoSuite) TestInfoSet(c *C) {
@@ -96,7 +96,7 @@ func (s *InfoSuite) TestInfoDelete(c *C) {
 	c.Assert(i.String(), Equals, "as=22")
 
 	i.Delete("as")
-	c.Assert(i.String(), Equals, "")
+	c.Assert(i.String(), Equals, ".")
 
 }
 

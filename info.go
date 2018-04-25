@@ -327,6 +327,9 @@ func (i InfoByte) Get(key string) (interface{}, error) {
 }
 
 func (i InfoByte) String() string {
+	if len(i.Info) == 0 {
+		return "."
+	}
 	return string(i.Info)
 }
 
