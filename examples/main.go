@@ -63,7 +63,7 @@ func main() {
 			if err != nil && variant.Samples[0] != nil {
 				log.Println("BBBBBBBBBBBBBBBBBBB")
 				if _, ok := vr.Header.SampleFormats["PL"]; ok {
-					fmt.Println("\n")
+					fmt.Println("")
 					fmt.Println(variant.Samples[0])
 					log.Println("DDDDDDDDDDDDDDDDD")
 					log.Fatal(err)
