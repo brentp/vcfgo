@@ -21,9 +21,11 @@ var vcfStr = `##fileformat=VCFv4.2
 ##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency">
 ##INFO=<ID=AA,Number=1,Type=String,Description="Ancestral Allele">
 ##INFO=<ID=DB,Number=0,Type=Flag,Description="dbSNP membership, build 129">
+##INFO=<ID=AA,Number=0,Type=Flag,Description="">
 ##INFO=<ID=LONG,Number=10,Type=Flag,Description="Large number of values">
 ##INFO=<ID=H2,Number=0,Type=Flag,Description="HapMap2 membership">
 ##FILTER=<ID=q10,Description="Quality below 10">
+##FILTER=<ID=q0,Description="">
 ##FILTER=<ID=s50,Description="Less than 50% of samples have data">
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
 ##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
@@ -128,7 +130,7 @@ func (s *HeaderSuite) TestSamples(c *C) {
 	c.Assert(chromCount["20"], Equals, 4)
 	c.Assert(chromCount["X"], Equals, 1)
 
-	c.Assert(int(variants[len(variants) - 1].Pos), Equals, int(153171993))
+	c.Assert(int(variants[len(variants)-1].Pos), Equals, int(153171993))
 	c.Assert(variants[3].Filter, Equals, "PASS")
 }
 
@@ -170,10 +172,10 @@ func (s *HeaderSuite) TestSampleGenotypes(c *C) {
 
 	// validate triploid parsing works
 	tripVariant := variants[6]
-	c.Assert(tripVariant.Samples[0].GT, DeepEquals, []int{0,0,0})
+	c.Assert(tripVariant.Samples[0].GT, DeepEquals, []int{0, 0, 0})
 	c.Assert(tripVariant.Samples[0].Phased, Equals, true)
 
-	c.Assert(tripVariant.Samples[1].GT, DeepEquals, []int{1,0,1})
+	c.Assert(tripVariant.Samples[1].GT, DeepEquals, []int{1, 0, 1})
 	c.Assert(tripVariant.Samples[1].Phased, Equals, false)
 
 	c.Assert(tripVariant.Samples[2].GT, DeepEquals, []int{-1})
