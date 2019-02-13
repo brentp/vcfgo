@@ -211,9 +211,8 @@ func (vr *Reader) Parse(fields [][]byte) *Variant {
 		qual = MISSING_VAL
 	} else {
 		qual, err = strconv.ParseFloat(unsafeString(fields[5]), 32)
+		vr.verr.Add(err, vr.LineNumber)
 	}
-
-	vr.verr.Add(err, vr.LineNumber)
 
 	v := &Variant{Chromosome: string(fields[0]), Pos: pos, Id_: string(fields[2]), Reference: string(fields[3]), Alternate: strings.Split(string(fields[4]), ","), Quality: float32(qual),
 		Filter: string(fields[6]), Header: vr.Header}
@@ -223,13 +222,13 @@ func (vr *Reader) Parse(fields [][]byte) *Variant {
 		v.Format = strings.Split(string(sample_fields[0]), ":")
 		v.sampleString = string(sample_fields[1])
 		if !vr.lazySamples {
-			vr.Header.ParseSamples(v)
+			err = vr.Header.ParseSamples(v)
+			vr.verr.Add(err, vr.LineNumber)
 		}
 	}
 	v.LineNumber = vr.LineNumber
 
 	v.Info_ = NewInfoByte(fields[7], vr.Header)
-	vr.verr.Add(err, vr.LineNumber)
 	return v
 }
 
@@ -242,8 +241,8 @@ func (h *Header) ParseSamples(v *Variant) error {
 	v.Samples = make([]*SampleGenotype, len(h.SampleNames))
 
 	for i, sample := range strings.Split(v.sampleString, "\t") {
-		var geno *SampleGenotype
-		geno, errors = h.parseSample(v.Format, sample)
+		geno, moreErrors := h.parseSample(v.Format, sample)
+		errors = append(errors, moreErrors...)
 
 		v.Samples[i] = geno
 	}
