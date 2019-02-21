@@ -141,6 +141,10 @@ func (v *Variant) End() uint32 {
 				if e != nil {
 					log.Fatalf("bad value for svlen: %s\n", svlen)
 				}
+			case float64:
+				slen = int(svlen.(float64))
+			case float32:
+				slen = int(svlen.(float32))
 			case []interface{}:
 				slen = svlen.([]interface{})[0].(int)
 			case interface{}:
