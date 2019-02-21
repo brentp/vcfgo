@@ -104,3 +104,23 @@ func (s *ReaderSuite) TestReaderRVGBug(c *C) {
 	_ = rec
 
 }
+
+func (s *ReaderSuite) TestSampleParsingErrors(c *C) {
+	sr := strings.NewReader(`##fileformat=VCFv4.0
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	S-1	S-2	S-3
+1	100000	.	C	G	.	.	.	GT	0|M	1/.	1/0
+2	200000	.	C	G	.	.	.	GT	0|0	0|1	1|E`)
+
+	rdr, err := vcfgo.NewReader(sr, false)
+
+	c.Assert(err, IsNil)
+
+	c.Assert(rdr.Read(), NotNil)
+	c.Assert(rdr.Error(), ErrorMatches, ".*M.* invalid syntax.*")
+
+	rdr.Clear()
+
+	c.Assert(rdr.Read(), NotNil)
+	c.Assert(rdr.Error(), ErrorMatches, ".*E.* invalid syntax.*")
+}
