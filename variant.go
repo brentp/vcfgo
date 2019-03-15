@@ -223,7 +223,7 @@ type SampleGenotype struct {
 	Fields map[string]string
 }
 
-// RefDepths returns the depths of the alternates for this sample
+// RefDepth returns the depths of the alternates for this sample
 func (s *SampleGenotype) RefDepth() (int, error) {
 	if ad, ok := s.Fields["AD"]; ok {
 		idx := strings.Index(ad, ",")
