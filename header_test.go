@@ -2,6 +2,7 @@ package vcfgo_test
 
 import (
 	"io"
+	"os"
 	"strings"
 
 	"github.com/brentp/irelate/interfaces"
@@ -132,6 +133,13 @@ func (s *HeaderSuite) TestSamples(c *C) {
 
 	c.Assert(int(variants[len(variants)-1].Pos), Equals, int(153171993))
 	c.Assert(variants[3].Filter, Equals, "PASS")
+}
+
+func (s *HeaderSuite) TestWeirdHeader(c *C) {
+	rr, err := os.Open("test-weird-header.vcf")
+	c.Assert(err, IsNil)
+	_, err = vcfgo.NewReader(rr, false)
+	c.Assert(err, IsNil)
 }
 
 func (s *HeaderSuite) TestSampleGenotypes(c *C) {

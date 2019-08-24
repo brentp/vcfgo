@@ -124,3 +124,17 @@ func (s *ReaderSuite) TestSampleParsingErrors(c *C) {
 	c.Assert(rdr.Read(), NotNil)
 	c.Assert(rdr.Error(), ErrorMatches, ".*E.* invalid syntax.*")
 }
+
+func (s *ReaderSuite) TestSampleParsingErrors2(c *C) {
+	f, err := os.Open("test-dp.vcf")
+	c.Assert(err, IsNil)
+
+	rdr, err := vcfgo.NewReader(f, false)
+	c.Assert(err, IsNil)
+
+	variant := rdr.Read()
+	c.Assert(variant, NotNil)
+
+	c.Assert(rdr.Error(), IsNil)
+
+}

@@ -105,7 +105,7 @@ func (h *Header) parseSample(format []string, s string) (*SampleGenotype, []erro
 func (h *Header) setSampleDP(geno *SampleGenotype, value string) error {
 	var err error
 	geno.DP, err = strconv.Atoi(value)
-	if err != nil && value == "" || value == "." {
+	if err != nil && (value == "" || value == ".") {
 		return nil
 	}
 	return err
@@ -134,6 +134,9 @@ func (h *Header) setSampleGL(geno *SampleGenotype, value string, isPL bool) erro
 	var err error
 	if len(geno.GL) != 0 {
 		geno.GL = geno.GL[:0]
+	}
+	if value == "." || value == "" {
+		return nil
 	}
 	vals := strings.Split(value, ",")
 	var v float64
