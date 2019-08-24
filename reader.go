@@ -253,13 +253,13 @@ func (h *Header) ParseSamples(v *Variant) error {
 	return nil
 }
 
-// Add a INFO field to the header.
+// AddInfoToHeader adds a INFO field to the header.
 func (vr *Reader) AddInfoToHeader(id string, num string, stype string, desc string) {
 	h := vr.Header
 	h.Infos[id] = &Info{Id: id, Number: num, Type: stype, Description: desc}
 }
 
-// Add a FORMAT field to the header.
+// AddFormatToHeader adds a FORMAT field to the header.
 func (vr *Reader) AddFormatToHeader(id string, num string, stype string, desc string) {
 	h := vr.Header
 	h.SampleFormats[id] = &SampleFormat{Id: id, Number: num, Type: stype, Description: desc}
