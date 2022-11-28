@@ -4,9 +4,10 @@ import (
 	"os"
 	"testing"
 
+	"bytes"
+	"strings"
+
 	. "gopkg.in/check.v1"
-    "bytes"
-    "strings"
 )
 
 func Test(t *testing.T) { TestingT(t) }
@@ -143,19 +144,39 @@ func (s *VCFSuite) TestIssue5(c *C) {
 
 func (s *VCFSuite) TestWriterNoSamples(c *C) {
 
-  fname := "test-no-samples-writer.vcf"
-  rdr, err := os.Open(fname)
-  c.Assert(err, IsNil)
-  vcf, err := NewReader(rdr, false)
-  c.Assert(err, IsNil)
+	fname := "test-no-samples-writer.vcf"
+	rdr, err := os.Open(fname)
+	c.Assert(err, IsNil)
+	vcf, err := NewReader(rdr, false)
+	c.Assert(err, IsNil)
 
-  var wtr bytes.Buffer
-  _, err = NewWriter(&wtr, vcf.Header)
-  c.Assert(err, IsNil)
+	var wtr bytes.Buffer
+	_, err = NewWriter(&wtr, vcf.Header)
+	c.Assert(err, IsNil)
 
-  str := wtr.String()
+	str := wtr.String()
 
-  c.Assert(strings.Contains(str, "\tFORMAT"), Equals, false)
+	c.Assert(strings.Contains(str, "\tFORMAT"), Equals, false)
 
 }
 
+func (s *VCFSuite) TestWriterWithSamples(c *C) {
+
+	fname := "test-h.vcf"
+	rdr, err := os.Open(fname)
+	c.Assert(err, IsNil)
+	vcf, err := NewReader(rdr, false)
+	c.Assert(err, IsNil)
+
+	var wtr bytes.Buffer
+	_, err = NewWriter(&wtr, vcf.Header)
+	c.Assert(err, IsNil)
+
+	str := wtr.String()
+
+	c.Assert(strings.Contains(str, "\tFORMAT"), Equals, true)
+
+	lines := strings.Split(strings.TrimSpace(str), "\n")
+	c.Assert(strings.HasPrefix(lines[len(lines)-1], "#CHROM"), Equals, true)
+
+}

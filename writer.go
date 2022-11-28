@@ -77,10 +77,10 @@ func NewWriter(w io.Writer, h *Header) (*Writer, error) {
 		fmt.Fprintf(w, "%s\n", line)
 	}
 
-  //fmt.Fprint(w, "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO")
+	fmt.Fprint(w, "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO")
 	var s string
 	if len(h.SampleNames) > 0 {
-		s = "FORMAT\t" + strings.Join(h.SampleNames, "\t")
+		s = "\tFORMAT\t" + strings.Join(h.SampleNames, "\t")
 	}
 
 	fmt.Fprint(w, s+"\n")
