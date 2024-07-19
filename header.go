@@ -226,7 +226,8 @@ func parseHeaderExtraKV(kv string) ([]string, error) {
 	kvpair := strings.SplitN(kv, "=", 2)
 
 	if len(kvpair) != 2 {
-		return nil, fmt.Errorf("header error in extra field: %s", kv)
+        kvpair = append(kvpair, "")
+		return kvpair, fmt.Errorf("header error in extra field: %s", kv)
 	}
 	return kvpair, nil
 }
