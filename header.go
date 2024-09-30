@@ -19,7 +19,7 @@ var contigRegexp = regexp.MustCompile(`contig=<.*((\w+)=([^,>]+))`)
 var sampleRegexp = regexp.MustCompile(`SAMPLE=<ID=([^,>]+)`)
 var pedRegexp = regexp.MustCompile(`PEDIGREE=<=([^,>]+)`)
 
-//var headerIdRegexp = regexp.MustCompile(`##([^=]+)=<ID=([^,]+)`)
+// var headerIdRegexp = regexp.MustCompile(`##([^=]+)=<ID=([^,]+)`)
 var fileVersionRegexp = regexp.MustCompile(`##fileformat=VCFv(.+)`)
 
 // Info holds the Info and Format fields
@@ -226,7 +226,7 @@ func parseHeaderExtraKV(kv string) ([]string, error) {
 	kvpair := strings.SplitN(kv, "=", 2)
 
 	if len(kvpair) != 2 {
-        kvpair = append(kvpair, "")
+		kvpair = append(kvpair, "")
 		return kvpair, fmt.Errorf("header error in extra field: %s", kv)
 	}
 	return kvpair, nil

@@ -1,6 +1,7 @@
 package vcfgo
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -179,4 +180,26 @@ func (s *VCFSuite) TestWriterWithSamples(c *C) {
 	lines := strings.Split(strings.TrimSpace(str), "\n")
 	c.Assert(strings.HasPrefix(lines[len(lines)-1], "#CHROM"), Equals, true)
 
+}
+func (s *VCFSuite) TestIssue20SampleGenotypes(c *C) {
+	fname := "test-issue-20.vcf"
+	rdr, err := os.Open(fname)
+	c.Assert(err, IsNil)
+	defer rdr.Close()
+
+	vcf, err := NewReader(rdr, false)
+	c.Assert(err, IsNil)
+
+	variant := vcf.Read()
+	c.Assert(variant, NotNil)
+
+	samples := variant.Samples
+	c.Assert(len(samples), Equals, 3)
+	// print samples
+	fmt.Printf("%+v\n", samples)
+
+	// Check genotypes for each sample
+	c.Assert(samples[0].GT, DeepEquals, []int{1, 1})
+	c.Assert(samples[1].GT, DeepEquals, []int{0, 1})
+	c.Assert(samples[2].GT, DeepEquals, []int{-1, -1})
 }

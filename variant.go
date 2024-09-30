@@ -223,6 +223,11 @@ type SampleGenotype struct {
 	Fields map[string]string
 }
 
+// String returns the string representation of the sample field.
+func (s *SampleGenotype) String() string {
+	return fmt.Sprintf("GT: %v, DP: %d, GL: %v, GQ: %d, MQ: %d, Fields: %v", s.GT, s.DP, s.GL, s.GQ, s.MQ, s.Fields)
+}
+
 // RefDepth returns the depths of the alternates for this sample
 func (s *SampleGenotype) RefDepth() (int, error) {
 	if ad, ok := s.Fields["AD"]; ok {
@@ -257,8 +262,8 @@ func (s *SampleGenotype) AltDepths() ([]int, error) {
 	return vals, nil
 }
 
-// String returns the string representation of the sample field.
-func (sg *SampleGenotype) String(fields []string) string {
+// ToString returns the string representation of the sample field.
+func (sg *SampleGenotype) ToString(fields []string) string {
 	if len(fields) == 0 {
 		return "."
 	}
@@ -291,7 +296,7 @@ func (v *Variant) String() string {
 	if len(v.Samples) > 0 {
 		samps := make([]string, len(v.Samples))
 		for i, s := range v.Samples {
-			samps[i] = s.String(v.Format)
+			samps[i] = s.ToString(v.Format)
 		}
 		s += fmt.Sprintf("\t%s\t%s", strings.Join(v.Format, ":"), strings.Join(samps, "\t"))
 	} else if v.sampleString != "" {
