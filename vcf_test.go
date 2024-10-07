@@ -190,16 +190,18 @@ func (s *VCFSuite) TestIssue20SampleGenotypes(c *C) {
 	vcf, err := NewReader(rdr, false)
 	c.Assert(err, IsNil)
 
-	variant := vcf.Read()
-	c.Assert(variant, NotNil)
+	for {
+		variant := vcf.Read()
+		c.Assert(variant, NotNil)
 
-	samples := variant.Samples
-	c.Assert(len(samples), Equals, 3)
-	// print samples
-	fmt.Printf("%+v\n", samples)
+		samples := variant.Samples
+		c.Assert(len(samples), Equals, 3)
+		// print samples
+		fmt.Printf("%+v\n", samples)
 
-	// Check genotypes for each sample
-	c.Assert(samples[0].GT, DeepEquals, []int{1, 1})
-	c.Assert(samples[1].GT, DeepEquals, []int{0, 1})
-	c.Assert(samples[2].GT, DeepEquals, []int{-1, -1})
+		// Check genotypes for each sample
+		c.Assert(samples[0].GT, DeepEquals, []int{1, 1})
+		c.Assert(samples[1].GT, DeepEquals, []int{0, 1})
+		c.Assert(samples[2].GT, DeepEquals, []int{-1, -1})
+	}
 }
