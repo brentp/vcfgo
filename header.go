@@ -68,8 +68,31 @@ func (h *Header) Validate(verr *VCFError) []error {
 
 func (h *Header) parseSample(format []string, s string) (*SampleGenotype, []error) {
 	values := strings.Split(s, ":")
-	if len(format) != len(values) {
-		return NewSampleGenotype(), []error{fmt.Errorf("bad sample string: %s", s)}
+
+	// The VCF spec permits any particular sample to have fewer entries than the
+	// number of format fields, so long as it at least has a GT entry (if GT is
+	// specified). Specifically, the spec for v4.2 reads as follows:
+	//
+	// "If any of the fields is missing, it is replaced with the missing value.
+	// For example if the FORMAT is GT:GQ:DP:HQ then 0 | 0 : . : 23 : 23, 34
+	// indicates that GQ is missing. Trailing fields can be dropped (with the
+	// exception of the GT field, which should always be present if specified in
+	// the FORMAT field).""
+
+	if len(format) > 0 && len(values) < 1 {
+
+		// Invalid: a sample that lacks even one value, if at least one format
+		// field is defined
+
+		return NewSampleGenotype(), []error{fmt.Errorf("bad sample string - no GT provided: %s", s)}
+
+	} else if x, y := len(format), len(values); x < y {
+
+		// Invalid: a sample that has more values than are expected based on the
+		// number of format fields
+
+		return NewSampleGenotype(), []error{fmt.Errorf("bad sample string - more sample fields (%d) than expected by the format string (%d): %s", y, x, s)}
+
 	}
 	//if geno == nil {
 	var value string
@@ -79,7 +102,16 @@ func (h *Header) parseSample(format []string, s string) (*SampleGenotype, []erro
 	var e error
 
 	for i, field := range format {
-		value = values[i]
+
+		// Because "Trailing fields can be dropped" per the VCF spec, we will
+		// guard against that case here and replace with the usual symbol for a
+		// missing value:
+		if i > (len(values) - 1) {
+			value = "."
+		} else {
+			value = values[i]
+		}
+
 		switch field {
 		case "GT":
 			e = h.setSampleGT(geno, value)
