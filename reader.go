@@ -35,7 +35,7 @@ import (
 )
 
 // used for the quality score which is 0 to 255, but allows "."
-const MISSING_VAL = 256
+const MISSING_VAL =  -1
 
 // Reader holds information about the current line number (for errors) and
 // The VCF header that indicates the structure of records.

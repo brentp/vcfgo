@@ -287,8 +287,12 @@ func NewSampleGenotype() *SampleGenotype {
 // String gives a string representation of a variant
 func (v *Variant) String() string {
 	var qual string
-
-	qual = fmt.Sprintf("%.1f", v.Quality)
+	
+	if v.Quality < 0 {
+		qual = "."
+	} else {
+		qual = fmt.Sprintf("%.1f", v.Quality)
+	}
 
 	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s", v.Chromosome, v.Pos, v.Id_, v.Ref(), strings.Join(v.Alt(), ","), qual, v.Filter, v.Info())
 	if len(v.Samples) > 0 {
