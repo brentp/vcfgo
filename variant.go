@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
 	"strconv"
 	"strings"
 
@@ -288,7 +289,7 @@ func NewSampleGenotype() *SampleGenotype {
 func (v *Variant) String() string {
 	var qual string
 	
-	if v.Quality < 0 {
+	if math.Float32bits(v.Quality) == missingBits {
 		qual = "."
 	} else {
 		qual = fmt.Sprintf("%.1f", v.Quality)
