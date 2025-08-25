@@ -37,6 +37,7 @@ import (
 
 // MISSING_VAL represents a signaling NaN for missing values
 const missingBits uint32 =  0x7F800001
+var MISSING_VAL = math.Float32frombits(missingBits)
 
 // Reader holds information about the current line number (for errors) and
 // The VCF header that indicates the structure of records.
