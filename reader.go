@@ -28,14 +28,16 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"os"
 	"strconv"
 	"strings"
 	"unsafe"
 )
 
-// used for the quality score which is 0 to 255, but allows "."
-const MISSING_VAL = 256
+// MISSING_VAL represents a signaling NaN for missing values
+const missingBits uint32 =  0x7F800001
+var MISSING_VAL = math.Float32frombits(missingBits)
 
 // Reader holds information about the current line number (for errors) and
 // The VCF header that indicates the structure of records.

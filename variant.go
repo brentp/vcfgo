@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
 	"strconv"
 	"strings"
 
@@ -287,11 +288,13 @@ func NewSampleGenotype() *SampleGenotype {
 // String gives a string representation of a variant
 func (v *Variant) String() string {
 	var qual string
-	if v.Quality == MISSING_VAL {
+	
+	if math.Float32bits(v.Quality) == missingBits {
 		qual = "."
 	} else {
 		qual = fmt.Sprintf("%.1f", v.Quality)
 	}
+
 	s := fmt.Sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s", v.Chromosome, v.Pos, v.Id_, v.Ref(), strings.Join(v.Alt(), ","), qual, v.Filter, v.Info())
 	if len(v.Samples) > 0 {
 		samps := make([]string, len(v.Samples))
