@@ -2,6 +2,7 @@ package vcfgo
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"testing"
 
@@ -202,4 +203,26 @@ func (s *VCFSuite) TestIssue20SampleGenotypes(c *C) {
 	c.Assert(samples[0].GT, DeepEquals, []int{1, 1})
 	c.Assert(samples[1].GT, DeepEquals, []int{0, 1})
 	c.Assert(samples[2].GT, DeepEquals, []int{-1, -1})
+}
+
+func (s *VCFSuite) TestReadWriteQual(c *C) {
+	vcfContent := `##fileformat=VCFv4.2
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+chr1	123	.	A	C	.	PASS	.
+`
+	rdr := strings.NewReader(vcfContent)
+	vcf, err := NewReader(rdr, false)
+	c.Assert(err, IsNil)
+
+	variant := vcf.Read()
+	c.Assert(variant, NotNil)
+	c.Assert(math.Float32bits(variant.Quality), Equals, math.Float32bits(MISSING_VAL))
+
+	var wtr bytes.Buffer
+	w, err := NewWriter(&wtr, vcf.Header)
+	c.Assert(err, IsNil)
+
+	w.WriteVariant(variant)
+	c.Assert(strings.Contains(wtr.String(), "\t.\tPASS"), Equals, true)
+
 }

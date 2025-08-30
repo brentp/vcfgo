@@ -36,7 +36,8 @@ import (
 )
 
 // MISSING_VAL represents a signaling NaN for missing values
-const missingBits uint32 =  0x7F800001
+const missingBits uint32 = 0x7F800001
+
 var MISSING_VAL = math.Float32frombits(missingBits)
 
 // Reader holds information about the current line number (for errors) and
@@ -209,11 +210,12 @@ func (vr *Reader) Parse(fields [][]byte) *Variant {
 	pos, err := strconv.ParseUint(unsafeString(fields[1]), 10, 64)
 	vr.verr.Add(err, vr.LineNumber)
 
-	var qual float64
+	var qual float32
 	if len(fields[5]) == 1 && fields[5][0] == '.' {
 		qual = MISSING_VAL
 	} else {
-		qual, err = strconv.ParseFloat(unsafeString(fields[5]), 32)
+		q, err := strconv.ParseFloat(unsafeString(fields[5]), 32)
+		qual = float32(q)
 		vr.verr.Add(err, vr.LineNumber)
 	}
 
