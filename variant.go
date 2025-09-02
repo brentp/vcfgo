@@ -127,29 +127,29 @@ func (v *Variant) End() uint32 {
 		return uint32(v.Pos-1) + uint32(len(v.Ref()))
 	}
 	if strings.HasPrefix(v.Alt()[0], "<DEL") || strings.HasPrefix(v.Alt()[0], "<DUP") || strings.HasPrefix(v.Alt()[0], "<IN") || strings.HasPrefix(v.Alt()[0], "<CN") {
-		if svlen, err := v.Info().Get("SVLEN"); err == nil || (strings.Contains(err.Error(), "not found in header") && svlen != nil) {
+		if svlenValue, err := v.Info().Get("SVLEN"); err == nil || (strings.Contains(err.Error(), "not found in header") && svlenValue != nil) {
 			var slen int
 			err = nil
-			switch svlen.(type) {
+			switch svlen := svlenValue.(type) {
 			case int:
-				slen = svlen.(int)
+				slen = svlen
 			case string:
 				var e error
-				if svlen.(string) == "" {
+				if svlen == "" {
 					return uint32(v.Pos)
 				}
-				slen, e = strconv.Atoi(svlen.(string))
+				slen, e = strconv.Atoi(svlen)
 				if e != nil {
 					log.Fatalf("bad value for svlen: %s\n", svlen)
 				}
 			case float64:
-				slen = int(svlen.(float64))
+				slen = int(svlen)
 			case float32:
-				slen = int(svlen.(float32))
+				slen = int(svlen)
 			case []interface{}:
-				slen = svlen.([]interface{})[0].(int)
-			case interface{}:
-				slen = svlen.(int)
+				slen = svlen[0].(int)
+			case []int:
+				slen = svlen[0]
 			default:
 				log.Printf("non int type for SVLEN:%s at %s:%d\n", svlen, v.Chrom(), v.Pos)
 				slen = 1
@@ -162,7 +162,7 @@ func (v *Variant) End() uint32 {
 		} else if end, err := v.Info().Get("END"); err == nil || end != nil {
 			if end == nil || end == "" {
 				if a != "<CN0>" {
-					log.Printf("non int type for END and SVLEN:%s at %s:%d\n", svlen, v.Chrom(), v.Pos)
+					log.Printf("non int type for END and SVLEN:%s at %s:%d\n", svlenValue, v.Chrom(), v.Pos)
 				}
 				return uint32(v.Pos + 1)
 			}
@@ -288,7 +288,7 @@ func NewSampleGenotype() *SampleGenotype {
 // String gives a string representation of a variant
 func (v *Variant) String() string {
 	var qual string
-	
+
 	if math.Float32bits(v.Quality) == missingBits {
 		qual = "."
 	} else {

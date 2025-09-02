@@ -3,11 +3,14 @@ package vcfgo_test
 import (
 	"io"
 	"strings"
+	"testing"
 
 	"github.com/brentp/vcfgo"
 
 	. "gopkg.in/check.v1"
 )
+
+func Test(t *testing.T) { TestingT(t) }
 
 var cnvStr = `##fileformat=VCFv4.1
 ##fileDate=20100501
@@ -106,11 +109,53 @@ func (s *CNVSuite) TestDupIns(c *C) {
 
 	eleft, eright, ok = v.CIEnd()
 	c.Assert(eleft, Equals, v.End()-1)
-	c.Assert(right, Equals, v.End())
+	c.Assert(eright, Equals, v.End())
 	c.Assert(ok, Equals, false)
 
 	v = r.Read() //.(*vcfgo.Variant) // BND
 	c.Assert(int(v.Start()), Equals, 755891)
 	c.Assert(int(v.End()), Equals, 755891+1)
 
+}
+
+var svlenNumberAStr = `##fileformat=VCFv4.1
+##fileDate=20100501
+##reference=1000GenomesPilot-NCBI36
+##assembly=ftp://ftp-trace.ncbi.nih.gov/1000genomes/ftp/release/sv/breakpoint_assemblies.fasta
+##INFO=<ID=SVLEN,Number=A,Type=Integer,Description="Length of structural variant">
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">
+##ALT=<ID=DEL,Description="Deletion">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	NA00001
+1	1000	.	T	<DEL>	60	PASS	SVTYPE=DEL;SVLEN=100	GT	0/1
+1	2000	.	A	<DEL>,<DEL>	60	PASS	SVTYPE=DEL;SVLEN=150,200	GT	1/2
+`
+
+type SVLENNumberASuite struct {
+	reader io.Reader
+	vcfStr string
+}
+
+var _ = Suite(&SVLENNumberASuite{vcfStr: svlenNumberAStr})
+
+func (s *SVLENNumberASuite) SetUpTest(c *C) {
+	s.reader = strings.NewReader(s.vcfStr)
+}
+
+func (s *SVLENNumberASuite) TestSVLENNumberA(c *C) {
+	r, err := vcfgo.NewReader(s.reader, false)
+	c.Assert(err, IsNil)
+	var v *vcfgo.Variant
+
+	// Test single alternative allele with SVLEN Number=A
+	v = r.Read()
+	c.Assert(v, NotNil)
+	c.Assert(int(v.Start()), Equals, 999) // 0-based
+	c.Assert(int(v.End()), Equals, 1100)  // 1000 + 100
+
+	// Test multiple alternative alleles with SVLEN Number=A
+	v = r.Read()
+	c.Assert(v, NotNil)
+	c.Assert(int(v.Start()), Equals, 1999) // 0-based
+	c.Assert(int(v.End()), Equals, 2150)   // 2000 + 150 (first alt allele)
 }
